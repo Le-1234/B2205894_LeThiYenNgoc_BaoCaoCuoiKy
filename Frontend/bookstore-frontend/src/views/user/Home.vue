@@ -194,9 +194,6 @@ const sendBorrow = async () => {
 
 </script>
 
-
-
-
 <style scoped>
 /* Toàn trang */
 .page {
@@ -295,42 +292,57 @@ const sendBorrow = async () => {
 
 /* CARD */
 .book-card {
-  position: relative;
   background: white;
-  border-radius: 16px;
-  padding: 18px;
+  border-radius: 14px;
+  padding: 14px;
   text-align: center;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  transition: .3s;
+
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  transition: .25s ease;
+
+  margin: 0 6px;
+  min-height: 310px;
 }
 
 .book-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
 }
 
 .img {
   width: 100%;
-  height: 230px;
+  height: 200px;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .book-title {
-  margin: 12px 0;
-  font-size: 18px;
+  margin-top: 10px;
+  font-size: 16px;
   font-weight: 700;
-  color: #0d5c38;
+  color: #094d30;
+  line-height: 1.2;
 }
 
 .btn {
   width: 100%;
-  padding: 10px;
+  padding: 8px 0;
   border: none;
-  border-radius: 12px;
-  background: linear-gradient(120deg, #1fff8b, #0b5831);
+  border-radius: 10px;
+
+  background: #0a7a3a;
   color: white;
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 14px;
+
+  transition: .2s ease;
 }
+
+.btn:hover {
+  background: #08632e;
+  transform: translateY(-2px);
+}
+
 
 /* Ribbon NEW */
 .new-wrapper {
@@ -388,44 +400,82 @@ const sendBorrow = async () => {
 }
 
 .popup-box {
-  background: white;
-  padding: 24px;
-  width: 360px;
-  border-radius: 14px;
+  background: #ffffff;
+  padding: 26px;
+  width: 340px;
+  border-radius: 16px;
+
   text-align: center;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.25);
 }
 
 .popup-box h3 {
-  margin-top: 0;
-  color: #0d5c38;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0a5830;
 }
 
 .book-name {
+  font-size: 17px;
   font-weight: 700;
-  margin: 12px 0 26px;
+  color: #063d24;
+  margin-bottom: 24px;
 }
 
 .send-btn {
-  background: #0b8f4a;
+  background: #0a7a3a;
   color: white;
-  padding: 10px 18px;
+  padding: 10px;
   border-radius: 10px;
   border: none;
   width: 100%;
-  margin-bottom: 12px;
+  font-size: 15px;
   font-weight: 700;
+  transition: .2s;
+}
+
+.send-btn:hover {
+  background: #09622f;
 }
 
 .close-btn {
-  background: #ddd;
-  padding: 10px 18px;
+  margin-top: 10px;
+  background: #e7e7e7;
+  padding: 10px;
   border-radius: 10px;
   border: none;
   width: 100%;
   font-weight: 700;
-  width: 100%;
+  color: #333;
 }
 
+.notif {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+
+  padding: 12px 20px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  animation: slideIn .35s ease;
+  z-index: 200;
+}
+
+.notif.success {
+  background: #0a7a3a;
+}
+
+.notif.error {
+  background: #d93030;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
 
 </style>

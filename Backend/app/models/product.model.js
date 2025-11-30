@@ -25,3 +25,4 @@ export const getProductsCollection = async () => {
   const database = await connectToDatabase();  // Đảm bảo kết nối trước khi lấy collection
   return database.collection('products');
 };
+
