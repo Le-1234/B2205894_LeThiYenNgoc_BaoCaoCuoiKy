@@ -28,7 +28,7 @@
           <div class="book-card" v-for="b in products" :key="b._id">
             <img class="img" :src="getImage(b.image)" />
             <h3 class="book-title">{{ b.title }}</h3>
-            <button class="btn">Mượn ngay</button>
+            <button class="btn" @click="openBorrow(b)">Mượn ngay</button>
           </div>
         </div>
 
@@ -66,7 +66,7 @@
           <div class="book-card" v-for="b in newBooks" :key="b._id">
             <img class="img" :src="getImage(b.image)" />
             <h3 class="book-title">{{ b.title }}</h3>
-            <button class="btn">Mượn ngay</button>
+            <button class="btn" @click="openBorrow(b)">Mượn ngay</button>
           </div>
         </div>
 
@@ -83,6 +83,19 @@
     </section>
 
     <AppFooter />
+
+    <!-- POPUP MƯỢN SÁCH -->
+    <div v-if="showBorrowPopup" class="popup-overlay">
+      <div class="popup-box">
+        <h3>Mượn sách</h3>
+
+        <p class="book-name">{{ selectedBook?.title }}</p>
+
+        <button class="send-btn" @click="sendBorrow">Gửi yêu cầu</button>
+        <button class="close-btn" @click="showBorrowPopup = false">Đóng</button>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -93,6 +106,7 @@ import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
 import HomeBanner from "@/components/HomeBanner.vue";
 import productService from "@/services/product.service.js";
+import borrowService from "@/services/borrow.service.js";
 
 const products = ref([]);
 const newBooks = ref([]);
@@ -108,6 +122,10 @@ const newHover = ref(false);
 
 const hotSlider = ref(null);
 const newSlider = ref(null);
+
+// Popup
+const showBorrowPopup = ref(false);
+const selectedBook = ref(null);
 
 // Slide function
 const slide = (sliderRef, index) => {
@@ -157,6 +175,23 @@ const getImage = (path) => {
   if (!path) return "";
   return `http://localhost:3000${path}`;
 };
+
+const openBorrow = (book) => {
+  selectedBook.value = book;
+  showBorrowPopup.value = true;
+};
+
+const sendBorrow = async () => {
+  try {
+    await borrowService.requestBorrow(selectedBook.value._id);
+    alert("Đã gửi yêu cầu mượn sách!");
+    showBorrowPopup.value = false;
+  } catch (err) {
+    console.error(err);
+    alert("Lỗi khi gửi yêu cầu mượn.");
+  }
+};
+
 </script>
 
 
@@ -340,4 +375,57 @@ const getImage = (path) => {
   border-width: 6px 0 0 6px;
   border-color: #b71c1c transparent transparent transparent;
 }
+
+/* POPUP */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+}
+
+.popup-box {
+  background: white;
+  padding: 24px;
+  width: 360px;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.popup-box h3 {
+  margin-top: 0;
+  color: #0d5c38;
+}
+
+.book-name {
+  font-weight: 700;
+  margin: 12px 0 26px;
+}
+
+.send-btn {
+  background: #0b8f4a;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  width: 100%;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.close-btn {
+  background: #ddd;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  width: 100%;
+  font-weight: 700;
+  width: 100%;
+}
+
+
 </style>

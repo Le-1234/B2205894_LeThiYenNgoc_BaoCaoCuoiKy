@@ -8,37 +8,50 @@
       <router-link to="/products">Sách</router-link>
     </nav>
 
-    <div class="auth-box">
-      <!-- Nếu chưa login -->
-      <router-link v-if="!user" class="login-btn" to="/login">
-        Đăng nhập
-      </router-link>
+    
+<div class="auth-box">
 
-      <!-- Nếu đã login → icon + username + dropdown -->
-      <div v-else class="user-menu" @click="toggleDropdown">
-        <i class="fa-solid fa-user user-icon"></i>
-        <span class="username">{{ user.username }}</span>
+  <!-- Nếu chưa login -->
+  <router-link v-if="!user" class="login-btn" to="/login">
+    Đăng nhập
+  </router-link>
 
-        <div v-if="showDropdown" class="dropdown">
+  <!-- Nếu đã login -->
+  <template v-else>
+    
+    <!-- 👉 ICON LỊCH SỬ MƯỢN -->
+    <router-link to="/borrow-history" class="history-icon">
+      <i class="fa-solid fa-book-open"></i>
+    </router-link>
+
+    <!-- Menu user -->
+    <div class="user-menu" @click="toggleDropdown">
+      <i class="fa-solid fa-user user-icon"></i>
+      <span class="username">{{ user.username }}</span>
+
+      <div v-if="showDropdown" class="dropdown">
         <div class="dropdown-item info">
-            <i class="fa-solid fa-user"></i>
-            <span>{{ user.username }}</span>
+          <i class="fa-solid fa-user"></i>
+          <span>{{ user.username }}</span>
         </div>
 
         <div class="dropdown-item info">
-            <i class="fa-solid fa-envelope"></i>
-            <span>{{ user.email }}</span>
+          <i class="fa-solid fa-envelope"></i>
+          <span>{{ user.email }}</span>
         </div>
 
         <div class="dropdown-divider"></div>
 
         <button class="dropdown-item logout" @click="logout">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Đăng xuất</span>
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Đăng xuất</span>
         </button>
-        </div>
       </div>
     </div>
+
+  </template>
+
+</div>
 
   </header>
 </template>

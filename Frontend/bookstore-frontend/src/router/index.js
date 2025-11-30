@@ -1,79 +1,92 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-// Import các trang
+// USER PAGES
 import Login from "@/views/user/Login.vue";
 import Register from "@/views/user/Register.vue";
 import Home from "@/views/user/Home.vue";
-import Dashboard from "@/views/admin/Dashboard.vue"; // <--- thêm
-import ProductsPage from "../views/admin/ProductsPage.vue";
-import ProductAdd from "../views/admin/ProductAdd.vue";
-import ProductEdit from "../views/admin/ProductEdit.vue";
+import BorrowHistoryPage from "@/views/user/BorrowHistoryPage.vue";
+
+// ADMIN PAGES
+import Dashboard from "@/views/admin/Dashboard.vue";
+import AdminBorrowPage from "@/views/admin/AdminBorrowPage.vue";
+import ProductsPage from "@/views/admin/ProductsPage.vue";
+const routes = [
+  //---------------------------
+  // USER AUTH ROUTES
+  //---------------------------
+  {
+    path: "/login",
+    name: "Login",
+    component: Login,
+    meta: { requiresGuest: true },
+  },
+  {
+    path: "/register",
+    name: "Register",
+    component: Register,
+    meta: { requiresGuest: true },
+  },
+
+  //---------------------------
+  // USER HOME
+  //---------------------------
+  {
+    path: "/",
+    name: "Home",
+    component: Home,
+    meta: { requiresAuth: true },
+  },
+
+  //---------------------------
+  // USER BORROW HISTORY
+  //---------------------------
+  {
+    path: "/borrow-history",
+    name: "BorrowHistory",
+    component: BorrowHistoryPage,
+    meta: { requiresAuth: true },
+  },
+
+  //---------------------------
+  // ADMIN PAGES
+  //---------------------------
+  {
+    path: "/dashboard",
+    name: "Dashboard",
+    component: Dashboard,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+    },
+  },
+
+  {
+    path: "/admin/borrows",
+    name: "AdminBorrowPage",
+    component: AdminBorrowPage,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+    },
+  },
+
+
+  {
+    path: "/products",
+    name: "Products",
+    component: ProductsPage,
+    meta: { requiresAuth: true },
+  },
+
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    {
-      path: "/login",
-      name: "Login",
-      component: Login,
-      meta: { requiresGuest: true },
-    },
-
-    {
-      path: "/register",
-      name: "Register",
-      component: Register,
-      meta: { requiresGuest: true },
-    },
-
-    {
-      path: "/",
-      name: "Home",
-      component: Home,
-      meta: { requiresAuth: true },
-    },
-
-    {
-      path: "/dashboard",
-      name: "Dashboard",
-      component: Dashboard,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: true, // <--- chỉ admin vào được
-      },
-    },
-
-     {
-      path: "/admin/products",
-      name: "products",
-      component: ProductsPage,
-      meta: { requiresAdmin: true }
-    },
-
-    {
-      path: "/admin/products/add",
-      name: "product-add",
-      component: ProductAdd,
-      meta: { requiresAdmin: true }
-    },
-
-    {
-      path: "/admin/products/edit/:id",
-      name: "product-edit",
-      component: ProductEdit,
-      props: true,
-      meta: { requiresAdmin: true }
-    },
-    // Trang không tồn tại
-    {
-      path: "/:pathMatch(.*)*",
-      redirect: "/",
-    },
-  ],
+  routes,
 });
 
 // -------------------------------
-//  GUARD kiểm tra đăng nhập
+//  GLOBAL NAVIGATION GUARD
 // -------------------------------
 router.beforeEach((to, from, next) => {
   const userStr = localStorage.getItem("user");
@@ -89,9 +102,9 @@ router.beforeEach((to, from, next) => {
     return next("/");
   }
 
-  // Route yêu cầu admin nhưng user không phải admin
+  // Yêu cầu admin
   if (to.meta.requiresAdmin && user?.role !== "admin") {
-    return next("/"); // hoặc redirect ra trang 403
+    return next("/"); // hoặc redirect "/403"
   }
 
   next();

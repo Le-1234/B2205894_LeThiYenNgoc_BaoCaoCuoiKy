@@ -1,11 +1,19 @@
-// src/utils/axios.js
 import axios from "axios";
 
-const instance = axios.create({
-  baseURL: "http://localhost:3000/api", // backend của bạn
+const api = axios.create({
+  baseURL: "http://localhost:3000/api",
   headers: {
-    "Content-Type": "application/json",
-  },
+    "Content-Type": "application/json"
+  }
 });
 
-export default instance;
+// Gắn token tự động
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export default api;
