@@ -1,47 +1,69 @@
 <template>
   <div class="page-root">
 
-    <!-- Nút Back -->
-    <button class="back-btn" @click="$router.push('/')">
-      <i class="fa-solid fa-arrow-left"></i>
-    </button>
+    <!-- ==== HEADER GIỐNG ADMIN ==== -->
+    <div class="page-header">
+      <button class="back-btn" @click="$router.push('/')">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
 
+      <div class="title-wrapper">
+        <i class="fa-solid fa-clock-rotate-left card-icon"></i>
+        <span>Lịch sử mượn sách</span>
+      </div>
+    </div>
+
+    <!-- ==== CONTENT ==== -->
     <div class="container">
-      <h2 class="form-title">Lịch sử mượn sách</h2>
+
+      <h2 class="form-title">Danh sách mượn của bạn</h2>
 
       <div v-if="loading" class="loading">Đang tải...</div>
 
       <div v-for="b in borrows" :key="b._id" class="borrow-item">
         <div class="info">
           <p><b>Sách:</b> {{ b.title }}</p>
+
           <p>
-            <b>Trạng thái:</b> 
-            <span :class="'status ' + b.status">{{ statusText(b.status) }}</span>
+            <b>Trạng thái:</b>
+            <span class="status" :class="b.status">
+              {{ statusText(b.status) }}
+            </span>
           </p>
+
           <p><b>Ngày mượn:</b> {{ format(b.startDate) }}</p>
           <p><b>Hạn trả:</b> {{ format(b.dueDate) }}</p>
         </div>
 
         <div class="actions">
-          <button class="btn cancel"
+
+          <button
+            class="btn cancel"
             v-if="b.status === 'pending'"
-            @click="cancel(b._id)">
+            @click="cancel(b._id)"
+          >
             Hủy yêu cầu
           </button>
 
-          <button class="btn return"
+          <button
+            class="btn return"
             v-if="b.status === 'approved'"
-            @click="returnBook(b._id)">
+            @click="returnBook(b._id)"
+          >
             Trả sách
           </button>
 
-          <button class="btn extend"
+          <button
+            class="btn extend"
             v-if="b.status === 'approved' && !b.extendUsed"
-            @click="extend(b._id)">
+            @click="extend(b._id)"
+          >
             Gia hạn 7 ngày
           </button>
+
         </div>
       </div>
+
     </div>
   </div>
 </template>
@@ -94,34 +116,65 @@ onMounted(load);
 </script>
 
 <style scoped>
-/* Nền xanh lá đậm */
+/* ==== NỀN ==== */
 .page-root {
-  background: #0e4a32;
+  background: #F7F7F7;
   min-height: 100vh;
-  padding: 40px 0;
-  display: flex;          
-  position: center;    
+  padding: 20px 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Khung trắng */
+/* ==== PAGE HEADER (Giống Admin) ==== */
+.page-header {
+  width: 96%;
+  background: #0e4a32;
+  color: white;
+
+  padding: 20px 28px;
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  isolation: isolate;
+}
+
+/* Tiêu đề */
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+/* ==== CONTAINER ==== */
 .container {
   width: 85%;
   max-width: 900px;
-  background: #ffffff !important; 
+  background: #ffffff;
   padding: 30px;
   border-radius: 14px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.2);
 
-  margin: 0 auto;  
-  margin-top: 70px;
+  margin-top: 40px;
 
-  isolation: isolate;     
   z-index: 2;
 }
 
-/* Tiêu đề */
+/* Tiêu đề phụ */
 .form-title {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 700;
   color: #064a1f;
   text-align: center;
@@ -135,24 +188,26 @@ onMounted(load);
   font-weight: 600;
 }
 
-/* Mỗi mục borrow */
+/* ==== ITEM ==== */
 .borrow-item {
   background: #f8fdf8;
   border: 1px solid #cfe8d1;
   padding: 16px;
   border-radius: 10px;
   margin-bottom: 16px;
+
   display: flex;
   justify-content: space-between;
-  color: #222;
+  gap: 20px;
 }
 
+/* Văn bản */
 .info p {
   margin: 5px 0;
   font-size: 15px;
 }
 
-/* Tag trạng thái */
+/* ==== STATUS ==== */
 .status {
   padding: 2px 9px;
   border-radius: 6px;
@@ -165,14 +220,12 @@ onMounted(load);
 .status.returned { background: #cce5ff; color: #084298; }
 .status.rejected { background: #f8d7da; color: #842029; }
 .status.canceled { background: #e2e3e5; color: #41464b; }
-.status.extended { background: #a1c5cb; color: #003e49 }
 
-/* Buttons */
+/* ==== BUTTONS ==== */
 .actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 160px;
 }
 
 .btn {
@@ -210,32 +263,23 @@ onMounted(load);
   background: #156fbd;
 }
 
-/* BACK BUTTON */
+/* Back button */
 .back-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.35);
+  padding: 8px 12px;
+  border-radius: 8px;
 
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 
-  background: white;
-  color: #064a1f;
-  border: 1px solid #0d6f3d;
-  padding: 8px 14px;
-  border-radius: 10px;
-
-  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.15s ease;
 }
 
 .back-btn:hover {
-  background: #e6f7ec;
-}
-
-.back-btn i {
-  font-size: 16px;
+  background: rgba(255,255,255,0.25);
 }
 </style>

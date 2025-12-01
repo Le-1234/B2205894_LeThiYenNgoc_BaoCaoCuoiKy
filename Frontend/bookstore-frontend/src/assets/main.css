@@ -392,3 +392,82 @@ nav a {
   text-decoration: none;
   font-weight: 700;
 }
+
+.notify-box {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 260px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  animation: slideUpFade 0.35s ease;
+  z-index: 9999;
+}
+
+.notify-box.success-add {
+  background: #d4edda;
+  color: #0f4e1f;
+  border-left: 5px solid #0d6b3b;
+}
+
+.notify-box.error {
+  background: #f8d7da;
+  color: #842029;
+  border-left: 5px solid #b32020;
+}
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(15px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page {
+  padding: 20px;
+}
+
+.page-header {
+  width: 100%;
+  background: #0e4a32;
+  color: white;
+  padding: 16px 22px;
+  border-radius: 12px;
+  margin-bottom: 22px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.back-btn {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.35);
+  padding: 8px 12px;
+  border-radius: 8px;
+
+  font-weight: 600;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  transition: 0.15s ease;
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,0.25);
+}

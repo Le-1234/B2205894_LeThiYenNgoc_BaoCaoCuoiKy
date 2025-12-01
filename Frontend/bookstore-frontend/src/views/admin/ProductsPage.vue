@@ -577,7 +577,7 @@ const notify = ref({
 /* ===== HEADER ===== */
 .page-header {
   width: 100%;
-  background: #0e4a32;              /* xanh da trời đậm */
+  background: #0e4a32;              
   color: white;
   padding: 16px 22px;
   border-radius: 12px;

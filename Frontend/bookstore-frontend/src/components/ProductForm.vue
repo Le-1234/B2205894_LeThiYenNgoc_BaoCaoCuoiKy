@@ -148,19 +148,19 @@ watch(
   (val) => {
     if (val) {
       form.value = {
-  title: val.title || "",
-  categoryId: val.categoryId ? String(val.categoryId) : "",
-  author: val.author || "",
-  year: val.year || "",
-  description: val.description || "",
-  publisher: val.publisher || "",
-  coverType: val.coverType ? String(val.coverType) : "",
-  image: val.image || "",
-  detail1: val.detail1 || "",
-  detail2: val.detail2 || "",
-  quantity: val.quantity || 1,
-  totalQuantity: val.totalQuantity || 1,
-};
+        title: val.title || "",
+        categoryId: val.categoryId ? String(val.categoryId) : "",
+        author: val.author || "",
+        year: val.year || "",
+        description: val.description || "",
+        publisher: val.publisher || "",
+        coverType: val.coverType ? String(val.coverType) : "",
+        image: val.image || "",
+        detail1: val.detail1 || "",
+        detail2: val.detail2 || "",
+        quantity: val.quantity || 1,
+        totalQuantity: val.totalQuantity || 1,
+      };
 
 
       // Load ảnh nếu có

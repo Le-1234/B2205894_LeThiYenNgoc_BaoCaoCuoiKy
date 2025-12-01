@@ -1,55 +1,64 @@
 <template>
-  <div class="page-root">
+  <div class="page">
 
-    <!-- BACK -->
-    <button class="back-btn" @click="$router.push('/')">
-      <i class="fa-solid fa-arrow-left"></i> Trang chủ
-    </button>
+    <!-- HEADER -->
+    <div class="page-header">
+      <button class="back-btn" @click="$router.push('/')">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
 
-    <div class="container">
-      
-      <h2 class="title">Tất cả sản phẩm</h2>
+      <div class="title-wrapper">
+        <i class="fa-solid fa-book"></i>
+        <span>Tất cả sách</span>
+      </div>
+    </div>
 
-      <!-- TÌM KIẾM -->
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Tìm kiếm sản phẩm..."
-        class="search-box"
-      />
+    <!-- MAIN WHITE CONTAINER -->
+    <div class="content-container">
 
-      <!-- DANH MỤC -->
-      <div class="category-bar">
-        <div
-          v-for="c in categories"
-          :key="c._id"
-          @click="selectCategory(c.name)"
-          :class="['category-item', selectedCategory === c.name ? 'active' : '']"
-        >
-          {{ c.name }}
-        </div>
-
-        <!-- NÚT XEM TẤT CẢ -->
-        <div
-          class="category-item all"
-          :class="{ active: selectedCategory === '' }"
-          @click="selectCategory('')"
-        >
-          Tất cả
-        </div>
+      <!-- SEARCH BOX -->
+      <div class="search-area">
+        <SearchBox @go-detail="goDetail" />
       </div>
 
-      <!-- DANH SÁCH SẢN PHẨM -->
-      <div class="product-list">
+      <!-- CATEGORY FILTER -->
+      <div class="filter-bar">
+        <button
+          :class="['filter-item', selectedCategory === 'all' ? 'active' : '']"
+          @click="selectedCategory = 'all'"
+        >
+          Tất cả
+        </button>
+
+        <button
+          v-for="cat in categories"
+          :key="cat._id"
+          :class="['filter-item', selectedCategory === cat._id ? 'active' : '']"
+          @click="selectedCategory = cat._id"
+        >
+          {{ cat.name }}
+        </button>
+      </div>
+
+      <!-- PRODUCTS GRID -->
+      <div class="product-grid">
         <div
           class="product-card"
           v-for="p in filteredProducts"
           :key="p._id"
-          @click="$router.push('/product/' + p._id)"
+          @click="goDetail(p._id)"
         >
-          <img :src="p.image" class="thumb" />
-          <h3>{{ p.title }}</h3>
-          <p class="price">{{ p.price }}₫</p>
+          <img
+            :src="p.image || '/noimage.png'"
+            class="product-img"
+          />
+
+          <h3 class="product-title">{{ p.title }}</h3>
+
+          <p class="product-qty">
+            Còn lại:
+            <strong>{{ p.quantity }}</strong> / {{ p.totalQuantity }}
+          </p>
         </div>
       </div>
 
@@ -59,154 +68,219 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import productService from "@/services/product.service";
-import categoryService from "@/services/category.service";
+import { useRouter } from "vue-router";
+import productService from "../../services/product.service";
+import SearchBox from "@/components/SearchBox.vue";
+import "../../assets/main.css";
 
+const router = useRouter();
 const products = ref([]);
 const categories = ref([]);
+const selectedCategory = ref("all");
 
-const search = ref("");
-const selectedCategory = ref("");
-
-const loadData = async () => {
-  const p = await productService.getAll();
-  products.value = p.data.data;
-
-  const c = await categoryService.getAll();
-  categories.value = c.data.data;
-};
-
-const selectCategory = (name) => {
-  selectedCategory.value = name;
+const goDetail = (id) => {
+  window.scrollTo(0, 0);
+  router.push(`/product/${id}`);
 };
 
 const filteredProducts = computed(() => {
-  return products.value.filter(p => {
-    const matchSearch = p.title.toLowerCase().includes(search.value.toLowerCase());
-    const matchCategory = selectedCategory.value ? p.category === selectedCategory.value : true;
-    return matchSearch && matchCategory;
-  });
+  if (selectedCategory.value === "all") return products.value;
+  return products.value.filter((p) => p.categoryId === selectedCategory.value);
 });
 
-onMounted(loadData);
+// Load product
+const loadProducts = async () => {
+  try {
+    const res = await productService.getAll();
+    products.value = Array.isArray(res) ? res : [];
+  } catch (e) {
+    console.error("Load products failed", e);
+  }
+};
+
+// Load categories
+const loadCategories = async () => {
+  try {
+    const res = await fetch("http://localhost:3000/api/categories");
+    categories.value = await res.json();
+  } catch (e) {
+    console.error("Load categories failed", e);
+  }
+};
+
+onMounted(() => {
+  loadProducts();
+  loadCategories();
+});
 </script>
 
 <style scoped>
-/* Nền xanh */
-.page-root {
-  background: #0e4a32;
-  min-height: 100vh;
-  padding: 40px 0;
+
+.page {
+  padding: 22px;
 }
 
-/* Container trắng */
-.container {
-  width: 90%;
-  max-width: 1000px;
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 14px;
-  margin: auto;
-  margin-top: 60px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-}
-
-/* Tiêu đề */
-.title {
-  text-align: center;
-  font-size: 28px;
-  font-weight: 700;
-  color: #064a1f;
-}
-
-/* Ô tìm kiếm */
-.search-box {
+/* ================= HEADER ================= */
+.page-header {
   width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  margin: 15px 0;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-}
-
-/* Thanh danh mục */
-.category-bar {
-  display: flex;
-  overflow-x: auto;
-  gap: 12px;
-  padding-bottom: 10px;
-  margin-bottom: 25px;
-}
-
-.category-bar::-webkit-scrollbar {
-  height: 6px;
-}
-
-.category-item {
-  padding: 8px 14px;
-  background: #e9f6ef;
-  border-radius: 10px;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  border: 1px solid #cce8d8;
-}
-
-.category-item.active {
-  background: #0d6f3d;
+  background: #0e4a32;
   color: white;
-}
-
-.category-item.all {
-  background: #f1f1f1;
-}
-
-/* Lưới sản phẩm */
-.product-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 20px;
-}
-
-.product-card {
-  background: white;
+  padding: 16px 22px;
   border-radius: 12px;
-  padding: 12px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.back-btn {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.35);
+  padding: 8px 12px;
+  border-radius: 8px;
   cursor: pointer;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+
+/* ================= WHITE CONTAINER ================= */
+.content-container {
+  background: white;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 8px 26px rgba(0,0,0,0.10);
+}
+
+
+/* ================= SEARCH ================= */
+.search-area {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+
+/* ================= CATEGORY FILTER ================= */
+.filter-bar {
+  margin-top: 6px;
+  margin-bottom: 14px;
+
+  display: flex;
+  gap: 12px;
+
+  overflow-x: auto;
+  padding: 8px 4px;
+
+  background: #f8fdfb;
+  border-radius: 12px;
+  border: 1px solid #e4f5ee;
+
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.filter-item {
+  flex-shrink: 0;
+  padding: 8px 20px;
+  border-radius: 20px;
+
+  border: 1px solid #d0e8db;
+  background: white;
+  cursor: pointer;
+
+  font-size: 15px;
+  font-weight: 600;
+  color: #0e4a32;
+
   transition: 0.2s;
 }
 
-.product-card:hover {
-  transform: translateY(-4px);
+.filter-item:hover {
+  background: #e8f7ee;
 }
 
-.thumb {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 10px;
+.filter-item.active {
+  background: #0e4a32;
+  border-color: #0e4a32;
+  color: white;
 }
 
-.price {
-  color: #0a7a22;
-  font-weight: 700;
-  margin-top: 8px;
+
+/* ================= PRODUCTS GRID ================= */
+/* GRID giống Shopee: card sát nhau, cân đối */
+.product-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
 }
 
-/* Nút Back */
-.back-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
+/* CARD */
+.product-card {
   background: white;
-  border: 1px solid #0d6f3d;
-  color: #064a1f;
-  padding: 8px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #eee;
   cursor: pointer;
-  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  transition: 0.2s ease;
 }
-.back-btn:hover { background: #e6f7ec; }
+
+.product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+/* IMAGE lớn hơn giống Shopee */
+.product-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+/* CONTENT bên dưới */
+.product-title,
+.product-qty {
+  padding: 0 10px;
+}
+
+/* Tiêu đề gần hình hơn */
+.product-title {
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-size: 14px;
+  min-height: 36px; /* cố định 2 dòng */
+  color: #333;
+}
+
+/* Số lượng căn sát hơn giống Shopee */
+.product-qty {
+  margin-top: 4px;
+  font-size: 13px;
+  margin-bottom: 12px; /* tạo khoảng cách đáy */
+}
+
+/* Bọc toàn trang trong hộp trắng */
+.page {
+  background: #f5f5f5;
+  padding: 16px;
+}
+
+.white-container {
+  background: #fff;
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
 </style>

@@ -1,13 +1,17 @@
 <template>
+  
   <div class="page-root">
+    <div class="page-header">
+      <button class="back-btn" @click="$router.push('/dashboard')">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
 
-    <!-- BACK BUTTON -->
-    <button class="back-btn" @click="$router.push('/admin')">
-      <i class="fas fa-arrow-left"></i>
-    </button>
-
+      <div class="title-wrapper">
+        <i class="fa-solid fa-file-lines card-icon"></i>
+        <span>Quản lý mượn sách</span>
+      </div>
+    </div>
     <div class="container">
-      <h2 class="form-title">Quản lý mượn sách</h2>
 
       <div v-if="loading" class="loading">Đang tải...</div>
 
@@ -100,14 +104,46 @@ onMounted(load);
 </script>
 
 <style scoped>
-/* Nền xanh lá đậm */
 .page-root {
-  background: #0e4a32;
+  background: #F7F7F7;
   min-height: 100vh;
-  padding: 40px 0;
-  display: flex;          
-  position: center;    
+  padding: 20px 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0; 
 }
+
+/* ==== TIÊU ĐỀ === */
+.page-header {
+  width: 96%;
+  background: #0e4a32;  
+  color: white;
+
+  padding: 20px 28px;
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+
+  z-index: 5; /* nổi lên trên nền */
+  isolation: isolate; /* ngăn blending */
+}
+
+/* Tiêu đề */
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+color: white;
+  font-size: 24px;
+  font-weight: 800;
+}
+
 
 /* Khung trắng */
 .container {
@@ -123,16 +159,6 @@ onMounted(load);
 
   isolation: isolate;     
   z-index: 2;
-}
-
-
-/* Tiêu đề */
-.form-title {
-  font-size: 26px;
-  font-weight: 700;
-  color: #064a1f;
-  text-align: center;
-  margin-bottom: 20px;
 }
 
 /* Loading */
@@ -210,33 +236,26 @@ onMounted(load);
   background: #06651a;
 }
 
-/* BACK BUTTON */
 .back-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  background: white;
-  color: #064a1f;
-  border: 1px solid #0d6f3d;
-  padding: 8px 14px;
-  border-radius: 10px;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.35);
+  padding: 8px 12px;
+  border-radius: 8px;
 
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  transition: 0.15s ease;
 }
 
 .back-btn:hover {
-  background: #e6f7ec;
+  background: rgba(255,255,255,0.25);
 }
 
-.back-btn i {
-  font-size: 16px;
-}
 
 </style>

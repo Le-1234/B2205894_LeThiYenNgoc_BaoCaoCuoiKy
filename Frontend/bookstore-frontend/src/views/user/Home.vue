@@ -25,10 +25,10 @@
         </button>
 
         <div class="slider" ref="hotSlider">
-          <div class="book-card" v-for="b in products" :key="b._id">
+          <div class="book-card" v-for="b in products" :key="b._id" @click="goDetail(b._id)">
             <img class="img" :src="getImage(b.image)" />
             <h3 class="book-title">{{ b.title }}</h3>
-            <button class="btn" @click="openBorrow(b)">Mượn ngay</button>
+            <button class="btn" @click.stop="openBorrow(b)">Mượn ngay</button>
           </div>
         </div>
 
@@ -46,7 +46,7 @@
       <!-- Sách mới -->
       <div class="section-title-wrapper new-wrapper">
         <span class="ribbon-new">NEW</span>
-        <h2 class="section-title">Mới thêm gần đây</h2>
+        <h2 class="section-title">SẢN PHẨM MỚI</h2>
       </div>
 
       <div class="slider-wrapper"
@@ -86,14 +86,24 @@
 
     <!-- POPUP MƯỢN SÁCH -->
     <div v-if="showBorrowPopup" class="popup-overlay">
-      <div class="popup-box">
-        <h3>Mượn sách</h3>
+      <div class="popup-box detail-popup">
+        <h3 class="popup-title">Mượn sách</h3>
 
         <p class="book-name">{{ selectedBook?.title }}</p>
 
-        <button class="send-btn" @click="sendBorrow">Gửi yêu cầu</button>
-        <button class="close-btn" @click="showBorrowPopup = false">Đóng</button>
+        <button class="send-btn" @click="sendBorrow">
+          Gửi yêu cầu
+        </button>
+
+        <button class="close-btn" @click="showBorrowPopup = false">
+          Đóng
+        </button>
       </div>
+    </div>
+
+    <!-- Notify -->
+    <div v-if="notify.show" :class="['notify-box', notify.type]">
+      {{ notify.message }}
     </div>
 
   </div>
@@ -102,19 +112,22 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
 import HomeBanner from "@/components/HomeBanner.vue";
 import productService from "@/services/product.service.js";
 import borrowService from "@/services/borrow.service.js";
+import "../../assets/main.css";
 
+const router = useRouter();
 const products = ref([]);
 const newBooks = ref([]);
 
 // Slider index
 const hotIndex = ref(0);
 const newIndex = ref(0);
-const itemsPerSlide = 4;
+const itemsPerSlide = 5;
 
 // Hover state
 const hotHover = ref(false);
@@ -181,16 +194,32 @@ const openBorrow = (book) => {
   showBorrowPopup.value = true;
 };
 
+const notify = ref({
+  show: false,
+  message: "",
+  type: "",
+});
+
+const showNotify = (msg, type = "success-add") => {
+  notify.value = { show: true, message: msg, type };
+  setTimeout(() => (notify.value.show = false), 1600);
+};
+
 const sendBorrow = async () => {
   try {
     await borrowService.requestBorrow(selectedBook.value._id);
-    alert("Đã gửi yêu cầu mượn sách!");
+    showNotify("Gửi yêu cầu mượn thành công!", "success-add");
     showBorrowPopup.value = false;
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi khi gửi yêu cầu mượn.");
+  } catch {
+    showNotify("Yêu cầu mượn không thành công! Hết sách trong kho.", "error");
   }
 };
+
+const goDetail = (id) => {
+  window.scrollTo(0, 0);
+  router.push(`/product/${id}`);
+};
+
 
 </script>
 
@@ -217,8 +246,35 @@ const sendBorrow = async () => {
 
 /* Mỗi card chiếm 1/5 màn hình */
 .slider .book-card {
-  min-width: calc(100% / 4);
+  flex: 0 0 calc(20% - 12px);
+  margin: 0 6px;
+  background: white;
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  transition: .25s ease;
+  min-height: 310px;
 }
+
+
+/* Card đồng bộ kích thước */
+.book-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 330px;
+}
+
+/* Tiêu đề không bị tràn gây lệch */
+.book-title {
+  height: 40px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
 
 /* Nút trái/phải – dạng tròn mờ */
 .nav-btn {
@@ -259,7 +315,7 @@ const sendBorrow = async () => {
 /* KHUNG TIÊU ĐỀ */
 .section-title-wrapper {
   width: 100%;
-  background: linear-gradient(130deg, #1fff8b, #0b5831);
+  background: #2b7852;
   padding: 14px 0;
   margin-top: 40px;
   border-radius: 18px;
@@ -267,8 +323,8 @@ const sendBorrow = async () => {
 }
 
 .section-title-wrapper:first-of-type {
-  background: linear-gradient(145deg, #07ff88, #006a3d);
-  box-shadow: 0 0 18px rgba(0,255,150,0.7);
+  background: #2b7852;
+  box-shadow: 0 0 10px rgba(0,255,150,0.7);
   border: 2px solid #ffffff55;
 }
 
@@ -389,34 +445,38 @@ const sendBorrow = async () => {
 }
 
 /* POPUP */
+/* Lớp nền mờ phủ toàn màn hình */
 .popup-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 99;
+  z-index: 9998;
 }
 
-.popup-box {
+.detail-popup {
   background: #ffffff;
-  padding: 26px;
-  width: 340px;
-  border-radius: 16px;
-
+  padding: 30px;
+  width: 360px;
+  border-radius: 20px;
   text-align: center;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+  box-shadow: 0 8px 26px rgba(0,0,0,0.20);
 }
 
-.popup-box h3 {
-  font-size: 20px;
+.popup-title {
+  font-size: 22px;
   font-weight: 800;
-  color: #0a5830;
+  color: #0e4a32;
+  margin-bottom: 10px;
 }
 
 .book-name {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: #063d24;
   margin-bottom: 24px;
@@ -426,56 +486,17 @@ const sendBorrow = async () => {
   background: #0a7a3a;
   color: white;
   padding: 10px;
-  border-radius: 10px;
-  border: none;
   width: 100%;
-  font-size: 15px;
+  border-radius: 10px;
   font-weight: 700;
-  transition: .2s;
-}
-
-.send-btn:hover {
-  background: #09622f;
 }
 
 .close-btn {
-  margin-top: 10px;
-  background: #e7e7e7;
+  margin-top: 12px;
   padding: 10px;
-  border-radius: 10px;
-  border: none;
   width: 100%;
-  font-weight: 700;
-  color: #333;
-}
-
-.notif {
-  position: fixed;
-  right: 20px;
-  top: 20px;
-
-  padding: 12px 20px;
+  background: #ddd;
   border-radius: 10px;
-  color: white;
-  font-weight: 600;
-  font-size: 15px;
-
-  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-  animation: slideIn .35s ease;
-  z-index: 200;
-}
-
-.notif.success {
-  background: #0a7a3a;
-}
-
-.notif.error {
-  background: #d93030;
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(40px); }
-  to   { opacity: 1; transform: translateX(0); }
 }
 
 </style>

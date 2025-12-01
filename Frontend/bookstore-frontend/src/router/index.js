@@ -5,12 +5,14 @@ import Login from "@/views/user/Login.vue";
 import Register from "@/views/user/Register.vue";
 import Home from "@/views/user/Home.vue";
 import BorrowHistoryPage from "@/views/user/BorrowHistoryPage.vue";
-import CategoryPage from "@/views/user/Products.vue";
+import Products from "@/views/user/Products.vue";
+import ProductDetail from "@/views/user/ProductDetail.vue";   // ⬅ THÊM
 
 // ADMIN PAGES
 import Dashboard from "@/views/admin/Dashboard.vue";
 import AdminBorrowPage from "@/views/admin/AdminBorrowPage.vue";
 import ProductsPage from "@/views/admin/ProductsPage.vue";
+
 const routes = [
   //---------------------------
   // USER AUTH ROUTES
@@ -49,6 +51,27 @@ const routes = [
   },
 
   //---------------------------
+  // USER PRODUCT LIST
+  //---------------------------
+  {
+    path: "/products",
+    name: "Products",
+    component: Products,
+    meta: { requiresAuth: true },
+  },
+
+  //---------------------------
+  // USER PRODUCT DETAIL (THÊM)
+  //---------------------------
+  {
+    path: "/product/:id",
+    name: "ProductDetail",
+    component: ProductDetail,
+    props: true,
+    meta: { requiresAuth: true },
+  },
+
+  //---------------------------
   // ADMIN PAGES
   //---------------------------
   {
@@ -71,20 +94,12 @@ const routes = [
     },
   },
 
-
   {
     path: "/admin/products",
     name: "AdminProducts",
     component: ProductsPage,
     meta: { requiresAuth: true },
   },
-
-  {
-  path: "/categories",
-  name: "Categories",
-  component: CategoryPage,
-  meta: { requiresAuth: true },
-  }
 ];
 
 const router = createRouter({
@@ -111,7 +126,7 @@ router.beforeEach((to, from, next) => {
 
   // Yêu cầu admin
   if (to.meta.requiresAdmin && user?.role !== "admin") {
-    return next("/"); // hoặc redirect "/403"
+    return next("/");
   }
 
   next();
