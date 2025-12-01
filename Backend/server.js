@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import userRoutes from './app/routes/user.route.js';
 import productRoutes from './app/routes/product.route.js';
 import borrowRoutes from "./app/routes/borrow.route.js";
+import categoryRouter from "./app/routes/category.route.js";
 
 import path from 'path';
 
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use("/api/borrow", borrowRoutes);
+app.use("/api/categories", categoryRouter);
 
 // Static images
 app.use("/images", express.static("public/images"));

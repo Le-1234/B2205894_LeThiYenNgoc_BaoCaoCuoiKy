@@ -1,84 +1,72 @@
 <template>
-  <div class="admin-page">
+  <div class="dashboard-wrapper">
 
-    <!-- SIDEBAR -->
-    <aside :class="['sidebar', { collapsed: isCollapsed }]">
+    <!-- HEADER -->
+    <header class="top-header">
+      <h1 class="dashboard-title">📘 Trang Quản Trị</h1>
 
-      <div class="top-side">
-        <h2 class="side-title" v-show="!isCollapsed">Admin</h2>
+      <div class="auth-box">
+        <router-link v-if="!user" class="login-btn" to="/login">
+          Đăng nhập
+        </router-link>
 
-        <button class="toggle-btn" @click="toggleSidebar">
-          <i class="fa-solid" :class="isCollapsed ? 'fa-bars' : 'fa-angles-left'"></i>
-        </button>
-      </div>
+        <div v-else class="user-menu" @click="toggleDropdown">
+          <i class="fa-solid fa-user user-icon"></i>
+          <span class="username">{{ user.username }}</span>
 
-      <nav class="side-menu">
-        <button
-          v-for="item in menu"
-          :key="item.name"
-          :class="['menu-item', { active: activeMenu === item.name }]"
-          @click="setActive(item.name)"
-        >
-          <i :class="item.icon"></i>
-
-          <span class="menu-text" v-show="!isCollapsed">{{ item.label }}</span>
-
-          <!-- Tooltip khi thu gọn -->
-          <div class="tooltip" v-if="isCollapsed">{{ item.label }}</div>
-        </button>
-      </nav>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main :class="['main-content', { collapsed: isCollapsed }]">
-
-      <header class="top-header">
-        <h1 class="dashboard-title">📘 Dashboard</h1>
-
-        <div class="auth-box">
-          <!-- Nếu chưa login -->
-          <router-link v-if="!user" class="login-btn" to="/login">
-            Đăng nhập
-          </router-link>
-
-          <!-- Nếu đã login -->
-          <div v-else class="user-menu" @click="toggleDropdown">
-            <i class="fa-solid fa-user user-icon"></i>
-            <span class="username">{{ user.username }}</span>
-
-            <!-- DROPDOWN -->
-            <div v-if="showDropdown" class="dropdown">
-              <div class="dropdown-item info">
-                <i class="fa-solid fa-user"></i>
-                <span>{{ user.username }}</span>
-              </div>
-
-              <div class="dropdown-item info">
-                <i class="fa-solid fa-envelope"></i>
-                <span>{{ user.email }}</span>
-              </div>
-
-              <div class="dropdown-divider"></div>
-
-              <button class="dropdown-item logout" @click="logout">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Đăng xuất</span>
-              </button>
+          <div v-if="showDropdown" class="dropdown">
+            <div class="dropdown-item info">
+              <i class="fa-solid fa-user"></i>
+              <span>{{ user.username }}</span>
             </div>
+
+            <div class="dropdown-item info">
+              <i class="fa-solid fa-envelope"></i>
+              <span>{{ user.email }}</span>
+            </div>
+
+            <div class="dropdown-divider"></div>
+
+            <button class="dropdown-item logout" @click="logout">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span>Đăng xuất</span>
+            </button>
           </div>
         </div>
-      </header>
-      <slot />
-    </main>
+      </div>
+    </header>
+
+    <!-- FEATURE CARDS -->
+    <div class="features">
+      <div class="feature-card" @click="goTo('/admin/products')">
+        <i class="fa-solid fa-book card-icon"></i>
+        <h3>Quản lý sách</h3>
+      </div>
+
+      <div class="feature-card" @click="goTo('/admin/users')">
+        <i class="fa-solid fa-users card-icon"></i>
+        <h3>Người dùng</h3>
+      </div>
+
+      <div class="feature-card" @click="goTo('/admin/borrows')">
+        <i class="fa-solid fa-file-lines card-icon"></i>
+        <h3>Phiếu mượn</h3>
+      </div>
+
+      <div class="feature-card" @click="goTo('/admin/stats')">
+        <i class="fa-solid fa-chart-line card-icon"></i>
+        <h3>Thống kê</h3>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import "../../assets/main.css";
 
 const router = useRouter();
+
 const user = ref(null);
 const showDropdown = ref(false);
 
@@ -87,193 +75,99 @@ onMounted(() => {
   if (stored) user.value = JSON.parse(stored);
 });
 
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
-
 const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
   router.push("/login");
 };
 
-const isCollapsed = ref(false);
-const activeMenu = ref("books");
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
 
-const toggleSidebar = () => (isCollapsed.value = !isCollapsed.value);
-const setActive = (name) => (activeMenu.value = name);
-
-const menu = [
-  { name: "books", label: "Quản lý sách", icon: "fa-solid fa-book" },
-  { name: "users", label: "Người dùng", icon: "fa-solid fa-users" },
-  { name: "tickets", label: "Phiếu mượn", icon: "fa-solid fa-file-lines" },
-  { name: "stats", label: "Thống kê", icon: "fa-solid fa-chart-line" }
-];
+const goTo = (path) => {
+  router.push(path);
+};
 </script>
 
 <style scoped>
-.admin-page {
-  display: flex;
+.dashboard-wrapper {
   min-height: 100vh;
   background: linear-gradient(160deg, #daf6df, #f4faf5);
-  font-family: 'Montserrat', sans-serif !important;
+  padding: 40px 60px;
+  font-family: "Montserrat", sans-serif !important;
 }
 
-/* SIDEBAR */
-.sidebar {
-  width: 240px;
-  background: #0e4a32;
-  color: white;
-  padding: 20px 12px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 5px 0 18px rgba(0, 0, 0, 0.25);
-
-  transition: width 0.35s ease;
-  overflow: visible;
-}
-
-.sidebar.collapsed {
-  width: 80px;
-}
-
-/* Header sidebar */
-.top-side {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.side-title {
-  font-weight: 700;
-  font-size: 22px;
-}
-
-.toggle-btn {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-/* ============================== */
-/*           MENU ITEM            */
-/* ============================== */
-.side-menu {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.menu-item {
-  position: relative;
-  padding: 12px 18px;
-  border: none;
-  border-radius: 12px;
-
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
-  text-align: left;
-  cursor: pointer;
-
-  transition: 0.25s;
-}
-
-.sidebar.collapsed .menu-item {
-  justify-content: center;
-}
-
-/* Hover */
-.menu-item:hover {
-  background: rgba(255, 255, 255, 0.30);
-}
-
-/* ACTIVE */
-.menu-item.active {
-  background: #ffffff33;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.28);
-
-  border-left: 10px solid #4affb9;
-  padding-left: 14px; 
-  font-weight: 700;
-}
-
-.menu-item.active i {
-  color: #4affb9;
-}
-
-/* Tooltip */
-.tooltip {
-  position: absolute;
-  left: 85px;
-  background: #0e4a32;
-  padding: 6px 12px;
-  border-radius: 6px;
-  white-space: nowrap;
-  opacity: 0;
-  transform: translateY(-50%);
-  pointer-events: none;
-  transition: 0.2s;
-  top: 50%;
-}
-
-.sidebar.collapsed .menu-item:hover .tooltip {
-  opacity: 1;
-  left: 100px;
-}
-
-/* ============================== */
-/*        MAIN CONTENT            */
-/* ============================== */
-.main-content {
-  flex: 1;
-  padding: 30px 40px;
-  transition: 0.3s ease;
-}
-
-/* Dashboard Title – giống header */
-.dashboard-title {
-  font-size: 28px;
-  color: #0e4a32;
-  font-weight: 700;
-  margin-bottom: 20px;
-  font-family: 'Montserrat', sans-serif !important;
-}
-
-/* Admin info */
+/* HEADER */
 .top-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 40px;
 }
 
-.admin-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.dashboard-title {
+  font-size: 32px;
   color: #0e4a32;
-  font-weight: 600;
+  font-weight: 700;
 }
 
+/* FEATURE GRID */
+.features {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 28px;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 18px;
+  padding: 32px 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  text-align: center;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.18);
+}
+
+.card-icon {
+  font-size: 48px;
+  color: #0e4a32;
+  margin-bottom: 12px;
+}
+
+.feature-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0e4a32;
+}
+
+/* DROPDOWN */
 .dropdown {
   position: absolute;
-  right: 50px;
-  top: 75px; 
+  right: 40px;
+  top: 70px;
   background: #d5f5df;
-  border-radius: 10px;
+  border-radius: 12px;
   min-width: 180px;
-  padding: 10px 0;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  padding: 12px 0;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
   z-index: 99;
-  font-family: 'Montserrat', sans-serif !important;
 }
 
+.dropdown-item {
+  padding: 10px 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 
+.dropdown-item.logout {
+  color: #c0392b;
+}
 </style>

@@ -42,4 +42,9 @@ export async function getUsersCollection() {
   return database.collection("users");
 }
 
+export async function getCategoriesCollection() {
+  const database = await connectDB();
+  return database.collection("categories");
+}
+
 export default client;
