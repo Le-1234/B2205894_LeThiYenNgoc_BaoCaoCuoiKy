@@ -1,19 +1,19 @@
-// app/controllers/borrow.controller.js
-import BorrowModel, { addDays } from "../models/borrow.model.js";
+// app/controllers/loan.controller.js
+import loanModel, { addDays } from "../models/loan.model.js";
 import { getUsersCollection, getProductsCollection } from "../config/index.js";
 import { ObjectId } from "mongodb";
 
-async function attachNames(borrows) {
+async function attachNames(loans) {
   const Users = await getUsersCollection();
   const Products = await getProductsCollection();
 
-  const userIds = [...new Set(borrows.map(b => ObjectId.createFromHexString(b.userId)))];
-  const productIds = [...new Set(borrows.map(b => ObjectId.createFromHexString(b.productId)))];
+  const userIds = [...new Set(loans.map(b => ObjectId.createFromHexString(b.userId)))];
+  const productIds = [...new Set(loans.map(b => ObjectId.createFromHexString(b.productId)))];
 
   const users = await Users.find({ _id: { $in: userIds } }).toArray();
   const products = await Products.find({ _id: { $in: productIds } }).toArray();
 
-  return borrows.map(b => ({
+  return loans.map(b => ({
     ...b,
     username: users.find(u => String(u._id) === String(b.userId))?.username || "Không rõ",
     title: products.find(p => String(p._id) === String(b.productId))?.title || "Không rõ"
@@ -22,16 +22,16 @@ async function attachNames(borrows) {
 
 export default {
   // ----------------------
-  // USER REQUEST BORROW
+  // USER REQUEST loan
   // ----------------------
-  async requestBorrow(req, res) {
+  async requestloan(req, res) {
     try {
       const { productId } = req.body;
 
       if (!productId)
         return res.status(400).json({ success: false, message: "Thiếu productId" });
 
-      const existing = (await BorrowModel.findByUser(req.user.id)).find(
+      const existing = (await loanModel.findByUser(req.user.id)).find(
         b =>
           String(b.productId) === String(productId) &&
           ["pending", "approved", "extended"].includes(b.status)
@@ -43,7 +43,7 @@ export default {
           message: "Bạn đã gửi yêu cầu hoặc đang mượn sách này"
         });
 
-      const created = await BorrowModel.create(req.user.id, productId);
+      const created = await loanModel.create(req.user.id, productId);
       return res.json({ success: true, data: created });
     } catch (err) {
       console.error(err);
@@ -54,9 +54,9 @@ export default {
   // ----------------------
   // USER VIEW HISTORY
   // ----------------------
-  async getMyBorrows(req, res) {
+  async getMyloans(req, res) {
     try {
-      const list = await BorrowModel.findByUser(req.user.id);
+      const list = await loanModel.findByUser(req.user.id);
       const populated = await attachNames(list);
       return res.json({ success: true, data: populated });
     } catch (err) {
@@ -73,7 +73,7 @@ export default {
       if (req.user.role !== "admin")
         return res.status(403).json({ success: false, message: "Không có quyền" });
 
-      const list = await BorrowModel.findAll();
+      const list = await loanModel.findAll();
       const populated = await attachNames(list);
 
       return res.json({ success: true, data: populated });
@@ -84,7 +84,7 @@ export default {
   },
 
   // ----------------------
-  // ADMIN APPROVE BORROW
+  // ADMIN APPROVE loan
   // ----------------------
   async approve(req, res) {
     try {
@@ -92,20 +92,20 @@ export default {
         return res.status(403).json({ success: false, message: "Không có quyền" });
 
       const id = req.params.id;
-      const borrow = await BorrowModel.findById(id);
+      const loan = await loanModel.findById(id);
 
-      if (!borrow)
+      if (!loan)
         return res.status(404).json({ success: false, message: "Không tìm thấy yêu cầu" });
 
-      if (borrow.status !== "pending")
+      if (loan.status !== "pending")
         return res.status(400).json({
           success: false,
-          message: `Không thể duyệt yêu cầu ở trạng thái ${borrow.status}`
+          message: `Không thể duyệt yêu cầu ở trạng thái ${loan.status}`
         });
 
       // giảm quantity
       const Products = await getProductsCollection();
-      const product = await Products.findOne({ _id: ObjectId.createFromHexString(borrow.productId) });
+      const product = await Products.findOne({ _id: ObjectId.createFromHexString(loan.productId) });
 
       if (!product)
         return res.status(404).json({ success: false, message: "Sách không tồn tại" });
@@ -118,14 +118,14 @@ export default {
       const now = new Date();
       const due = addDays(7);
 
-      await BorrowModel.updateStatus(id, {
+      await loanModel.updateStatus(id, {
         status: "approved",
         startDate: now,
         approvedAt: now,
         dueDate: due
       });
 
-      const updated = await BorrowModel.findById(id);
+      const updated = await loanModel.findById(id);
       const populated = await attachNames([updated]);
 
       return res.json({ success: true, data: populated[0] });
@@ -144,18 +144,18 @@ export default {
         return res.status(403).json({ success: false, message: "Không có quyền" });
 
       const id = req.params.id;
-      const borrow = await BorrowModel.findById(id);
+      const loan = await loanModel.findById(id);
 
-      if (!borrow)
+      if (!loan)
         return res.status(404).json({ success: false, message: "Không tìm thấy yêu cầu" });
 
-      if (borrow.status !== "pending")
+      if (loan.status !== "pending")
         return res.status(400).json({
           success: false,
-          message: `Không thể từ chối khi trạng thái ${borrow.status}`
+          message: `Không thể từ chối khi trạng thái ${loan.status}`
         });
 
-      await BorrowModel.updateStatus(id, { status: "rejected" });
+      await loanModel.updateStatus(id, { status: "rejected" });
 
       return res.json({ success: true });
     } catch (err) {
@@ -171,31 +171,31 @@ export default {
     try {
       const id = req.params.id;
 
-      const borrow = await BorrowModel.findById(id);
-      if (!borrow)
+      const loan = await loanModel.findById(id);
+      if (!loan)
         return res.status(404).json({ success: false, message: "Không tìm thấy yêu cầu" });
 
-      if (borrow.userId !== req.user.id)
+      if (loan.userId !== req.user.id)
         return res.status(403).json({ success: false, message: "Không có quyền" });
 
-      if (borrow.status !== "approved")
+      if (loan.status !== "approved")
         return res.status(400).json({
           success: false,
           message: "Chỉ được gia hạn khi đang mượn"
         });
 
-      if (borrow.extendUsed)
+      if (loan.extendUsed)
         return res.status(400).json({ success: false, message: "Chỉ được gia hạn 1 lần" });
 
-      const newDue = addDays(7, borrow.dueDate ? new Date(borrow.dueDate) : new Date());
+      const newDue = addDays(7, loan.dueDate ? new Date(loan.dueDate) : new Date());
 
-      await BorrowModel.updateStatus(id, {
+      await loanModel.updateStatus(id, {
         status: "extended",
         extendUsed: true,
         dueDate: newDue
       });
 
-      const updated = await BorrowModel.findById(id);
+      const updated = await loanModel.findById(id);
       const populated = await attachNames([updated]);
 
       return res.json({ success: true, data: populated[0] });
@@ -208,28 +208,28 @@ export default {
   // ----------------------
   // RETURN BOOK
   // ----------------------
-  async returnBorrow(req, res) {
+  async returnloan(req, res) {
     try {
       const id = req.params.id;
-      const borrow = await BorrowModel.findById(id);
+      const loan = await loanModel.findById(id);
 
-      if (!borrow)
+      if (!loan)
         return res.status(404).json({ success: false });
 
-      if (borrow.userId !== req.user.id && req.user.role !== "admin")
+      if (loan.userId !== req.user.id && req.user.role !== "admin")
         return res.status(403).json({ success: false });
 
-      if (!["approved", "extended"].includes(borrow.status))
+      if (!["approved", "extended"].includes(loan.status))
         return res.status(400).json({ success: false });
 
       // tăng quantity
       const Products = await getProductsCollection();
       await Products.updateOne(
-        { _id: ObjectId.createFromHexString(borrow.productId) },
+        { _id: ObjectId.createFromHexString(loan.productId) },
         { $inc: { quantity: 1 } }
       );
 
-      await BorrowModel.updateStatus(id, {
+      await loanModel.updateStatus(id, {
         status: "returned",
         returnedAt: new Date()
       });
@@ -247,24 +247,24 @@ export default {
   async cancel(req, res) {
     try {
       const id = req.params.id;
-      const borrow = await BorrowModel.findById(id);
+      const loan = await loanModel.findById(id);
 
-      if (!borrow) return res.status(404).json({ success: false });
+      if (!loan) return res.status(404).json({ success: false });
 
       // user cancel
       if (req.user.role !== "admin") {
-        if (borrow.userId !== req.user.id)
+        if (loan.userId !== req.user.id)
           return res.status(403).json({ success: false });
 
-        if (borrow.status !== "pending")
+        if (loan.status !== "pending")
           return res.status(400).json({ success: false });
 
-        await BorrowModel.updateStatus(id, { status: "canceled" });
+        await loanModel.updateStatus(id, { status: "canceled" });
         return res.json({ success: true });
       }
 
       // admin force cancel
-      await BorrowModel.updateStatus(id, { status: "canceled" });
+      await loanModel.updateStatus(id, { status: "canceled" });
       return res.json({ success: true });
     } catch (err) {
       console.error(err);

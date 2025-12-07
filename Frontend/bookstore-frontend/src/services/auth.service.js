@@ -53,11 +53,13 @@ export default {
   // -----------------------
   //  LOGOUT
   // -----------------------
-  logout() {
+  logout(router) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    
+    // Chuyển hướng đến trang chủ
+    router.push("/");  // Trang chủ dành cho khách
   },
-
   // -----------------------
   //  Lấy user hiện tại
   // -----------------------

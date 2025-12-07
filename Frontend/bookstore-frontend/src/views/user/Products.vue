@@ -48,20 +48,17 @@
           :key="p._id"
           @click="goDetail(p._id)"
         >
-          <img
-            :src="p.image || '/noimage.png'"
-            class="product-img"
-          />
-
-          <h3 class="product-title">{{ p.title }}</h3>
-
-          <p class="product-qty">
-            Còn lại:
-            <strong>{{ p.quantity }}</strong> / {{ p.totalQuantity }}
-          </p>
-        </div>
-      </div>
-
+        <img
+        :src="getImage(p.image)"
+        class="product-img"
+        />
+        <h3 class="product-title">{{ p.title }}</h3>
+         <p class="product-qty">
+           Còn lại:
+           <strong>{{ p.quantity }}</strong> / {{ p.totalQuantity }}
+         </p>
+       </div>
+     </div>
     </div>
   </div>
 </template>
@@ -112,6 +109,12 @@ onMounted(() => {
   loadProducts();
   loadCategories();
 });
+
+const getImage = (path) => {
+  if (!path) return "";
+  return `http://localhost:3000${path}`;
+};
+
 </script>
 
 <style scoped>

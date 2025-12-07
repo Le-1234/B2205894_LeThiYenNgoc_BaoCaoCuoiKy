@@ -7,7 +7,7 @@
     <!-- MENU -->
     <nav class="menu">
       <router-link to="/products">Sách</router-link>
-      <router-link to="/borrow-history">Lịch sử mượn</router-link>
+      <router-link to="/loan-history">Lịch sử mượn</router-link>
     </nav>
 
     <!-- SEARCH BOX (tách component) -->
@@ -15,9 +15,12 @@
 
     <!-- USER -->
     <div class="auth-box">
-
+      <!-- Hiển thị nút đăng nhập và đăng ký khi chưa đăng nhập -->
       <router-link v-if="!user" class="login-btn" to="/login">
         Đăng nhập
+      </router-link>
+      <router-link v-if="!user" class="auth-btn register-btn" to="/register">
+        Đăng ký
       </router-link>
 
       <template v-else>
@@ -43,8 +46,8 @@
           </div>
         </div>
       </template>
-
     </div>
+
   </header>
 </template>
 
@@ -204,4 +207,22 @@ const logout = () => {
 .dropdown-item:hover {
   background: #f5f5f5;
 }
+
+/* Nút Đăng ký */
+.register-btn {
+  color: white;
+  background: #1cb56d;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  margin-left: 10px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.3s ease; 
+}
+
+.register-btn:hover {
+  background: #17a253;
+}
+
 </style>

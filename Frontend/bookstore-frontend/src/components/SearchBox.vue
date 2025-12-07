@@ -16,7 +16,7 @@
     <!-- Gợi ý -->
     <ul v-if="show && results.length" class="suggest-list">
       <li v-for="p in results" :key="p._id" @click="emitDetail(p._id)">
-        <img :src="p.image" />
+        <img :src="getImage(p.image)" alt="Book Image" />
         <span>{{ p.title }}</span>
       </li>
     </ul>
@@ -38,6 +38,7 @@ onMounted(async () => {
   all.value = await productService.getAll();
 });
 
+// Lọc kết quả tìm kiếm
 const filter = () => {
   const q = keyword.value.trim().toLowerCase();
   if (!q) return (results.value = []);
@@ -47,15 +48,25 @@ const filter = () => {
   );
 };
 
+// Xử lý khi người dùng nhấp vào một cuốn sách trong gợi ý
 const emitDetail = (id) => {
   show.value = false;
   emits("go-detail", id); // Gửi id về trang cha
 };
 
+// Gửi từ khóa tìm kiếm về trang cha
 const emitSearch = () => {
   if (!keyword.value.trim()) return;
   emits("go-search", keyword.value);
 };
+
+// Hàm xử lý đường dẫn ảnh từ cơ sở dữ liệu
+const getImage = (path) => {
+  if (!path) return "/images/default-image.jpg"; // Nếu không có đường dẫn ảnh, trả về ảnh mặc định
+  // Giả sử đường dẫn ảnh trong cơ sở dữ liệu bắt đầu với '/images'
+  return `http://localhost:3000${path}`;
+};
+
 </script>
 
 <style scoped>

@@ -41,7 +41,7 @@
         <p class="publisher">Nhà xuất bản: {{ product.publisher }}</p>
         <p class="cover">Loại bìa: {{ product.coverType }}</p>
         <p class="year">Năm xuất bản: {{ product.year }}</p>
-
+        <p>Mô tả:</p>
         <p class="desc">{{ product.description }}</p>
 
         <p class="qty">
@@ -49,20 +49,27 @@
           <strong>{{ product.quantity }}</strong> / {{ product.totalQuantity }}
         </p>
 
-        <button class="borrow-btn" @click="borrowBook">
-          📚 Mượn ngay
+        <button class="loan-btn" @click="loanBook">
+          Mượn ngay
         </button>
       </div>
     </div>
 
     <!-- POPUP -->
-    <div v-if="showBorrowPopup" class="popup-overlay">
-      <div class="popup-box">
-        <h3>Mượn sách</h3>
+    <!-- POPUP MƯỢN SÁCH -->
+    <div v-if="showloanPopup" class="popup-overlay">
+      <div class="popup-box detail-popup">
+        <h3 class="popup-title">Mượn sách</h3>
+
         <p class="book-name">{{ selectedBook?.title }}</p>
 
-        <button class="send-btn" @click="sendBorrow">Gửi yêu cầu</button>
-        <button class="close-btn" @click="showBorrowPopup = false">Đóng</button>
+        <button class="send-btn" @click="sendloan">
+          Gửi yêu cầu
+        </button>
+
+        <button class="close-btn" @click="showloanPopup = false">
+          Đóng
+        </button>
       </div>
     </div>
 
@@ -110,7 +117,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import productService from "@/services/product.service.js";
-import borrowService from "@/services/borrow.service.js";
+import loanService from "@/services/loan.service.js";
 
 const route = useRoute();
 const router = useRouter();
@@ -128,13 +135,13 @@ const related = ref([]);
 const sliderRef = ref(null);
 const slideIndex = ref(0);
 const itemsPerSlide = 5;
-
+const itemWidth = 20;
+const gap = 18; 
 /* == FIX LOAD IMAGE == */
-const getImage = (img) => {
-  if (!img) return "/noimage.png";
-  if (img.startsWith("http")) return img;
-  return `http://localhost:3000/uploads/${img}`;
-};
+const getImage = (path) => {
+  if (!path) return "";
+  return `http://localhost:3000${path}`;
+};;
 
 /* LOAD DATA */
 onMounted(async () => {
@@ -172,11 +179,14 @@ onMounted(async () => {
   }
 });
 
-/* SLIDER giống trang Home */
+// --- SLIDER LIKE HOMEPAGE ---
+
 const slide = () => {
   if (!sliderRef.value) return;
-  const offset = slideIndex.value * 100;
-  sliderRef.value.style.transform = `translateX(-${offset}%)`;
+
+  const movePercent = slideIndex.value * (itemsPerSlide * (itemWidth + (gap / 3))); 
+
+  sliderRef.value.style.transform = `translateX(-${movePercent}%)`;
 };
 
 const nextSlide = () => {
@@ -190,8 +200,8 @@ const prevSlide = () => {
   slide();
 };
 
-/* BORROW */
-const showBorrowPopup = ref(false);
+/* loan */
+const showloanPopup = ref(false);
 const selectedBook = ref(null);
 
 const notify = ref({ show: false, message: "", type: "" });
@@ -201,16 +211,16 @@ const showNotify = (msg, type = "success-add") => {
   setTimeout(() => (notify.value.show = false), 2200);
 };
 
-const borrowBook = () => {
+const loanBook = () => {
   selectedBook.value = product.value;
-  showBorrowPopup.value = true;
+  showloanPopup.value = true;
 };
 
-const sendBorrow = async () => {
+const sendloan = async () => {
   try {
-    await borrowService.requestBorrow(selectedBook.value._id);
+    await loanService.requestloan(selectedBook.value._id);
     showNotify("Gửi yêu cầu mượn thành công!", "success-add");
-    showBorrowPopup.value = false;
+    showloanPopup.value = false;
   } catch (err) {
     showNotify("Yêu cầu mượn thất bại! Hết sách", "error");
   }
@@ -287,7 +297,7 @@ const goDetail = (id) => {
   margin-top: 6px;
 }
 
-.borrow-btn {
+.loan-btn {
   background: #0e764c;
   color: white;
   padding: 12px 18px;
@@ -297,8 +307,10 @@ const goDetail = (id) => {
   font-weight: 700;
   cursor: pointer;
   transition: 0.2s;
+  width: 30%;
 }
-.borrow-btn:hover {
+
+.loan-btn:hover {
   background: #0c5c3a;
   transform: translateY(-2px);
 }
@@ -308,67 +320,141 @@ const goDetail = (id) => {
   position: relative;
   width: 100%;
   overflow: hidden;
+  margin-top: 16px;
 }
 
 .slider {
   display: flex;
-  gap: 18px;
-  transition: 0.35s ease;
+  transition: transform .45s ease-in-out;
 }
 
 .related-item {
-  flex: 0 0 calc(20% - 18px);
+  flex: 0 0 20%;
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 12px;
+  margin-right: 18px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: .25s ease;
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-}
-.related-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 320px;
 }
 
-.related-title {
-  width: 100%;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #09381e, #0e4a32);
-  color: white;
-  font-size: 26px;
-  font-weight: 700;
-  border-radius: 6px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-  letter-spacing: 0.5px;
+.related-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
 }
 
 .related-item img {
   width: 100%;
-  height: 180px;
+  height: 190px;
   object-fit: cover;
+  border-radius: 12px;
+}
+
+.r-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #09381e;
+  margin-top: 8px;
+  line-height: 1.3;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* NÚT SLIDE */
+.slide-btn {
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  color: white;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(8px);
+  border-radius: 50%;
+  border: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: .2s ease;
+  z-index: 20;
+  opacity: 0;
+}
+
+.slider-container:hover .slide-btn {
+  opacity: 1;
+}
+
+.slide-btn:hover {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.slide-btn.left { left: 5px; }
+.slide-btn.right { right: 5px; }
+
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9998;
+}
+
+.detail-popup {
+  background: #ffffff;
+  padding: 30px;
+  width: 360px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 8px 26px rgba(0,0,0,0.20);
+}
+
+.popup-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0e4a32;
+  margin-bottom: 10px;
+}
+
+.book-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #063d24;
+  margin-bottom: 24px;
+}
+
+.send-btn {
+  background: #0a7a3a;
+  color: white;
+  padding: 10px;
+  width: 100%;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.close-btn {
+  margin-top: 12px;
+  padding: 10px;
+  width: 100%;
+  background: #ddd;
   border-radius: 10px;
 }
 
-.slide-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  width: 40px;
-  height: 40px;
-  z-index: 20;
-  cursor: pointer;
-}
-.slide-btn i {
-  font-size: 22px;
-  color: #0e4a32;
-}
-.slide-btn:hover {
-  background: rgba(0,0,0,0.08);
-  border-radius: 50%;
-}
-
-.slide-btn.left { left: 0; }
-.slide-btn.right { right: 0; }
 </style>

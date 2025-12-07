@@ -20,7 +20,7 @@
 
       <div v-if="loading" class="loading">Đang tải...</div>
 
-      <div v-for="b in borrows" :key="b._id" class="borrow-item">
+      <div v-for="b in loans" :key="b._id" class="loan-item">
         <div class="info">
           <p><b>Sách:</b> {{ b.title }}</p>
 
@@ -70,9 +70,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import borrowService from "../../services/borrow.service";
+import loanService from "../../services/loan.service";
 
-const borrows = ref([]);
+const loans = ref([]);
 const loading = ref(true);
 
 function format(date) {
@@ -92,23 +92,23 @@ function statusText(s) {
 
 async function load() {
   loading.value = true;
-  const res = await borrowService.getMyBorrows();
-  borrows.value = res.data.data;
+  const res = await loanService.getMyloans();
+  loans.value = res.data.data;
   loading.value = false;
 }
 
 async function cancel(id) {
-  await borrowService.cancel(id);
+  await loanService.cancel(id);
   load();
 }
 
 async function returnBook(id) {
-  await borrowService.returnBorrow(id);
+  await loanService.returnloan(id);
   load();
 }
 
 async function extend(id) {
-  await borrowService.extendBorrow(id);
+  await loanService.extendloan(id);
   load();
 }
 
@@ -127,7 +127,6 @@ onMounted(load);
   align-items: center;
 }
 
-/* ==== PAGE HEADER (Giống Admin) ==== */
 .page-header {
   width: 96%;
   background: #0e4a32;
@@ -188,8 +187,7 @@ onMounted(load);
   font-weight: 600;
 }
 
-/* ==== ITEM ==== */
-.borrow-item {
+.loan-item {
   background: #f8fdf8;
   border: 1px solid #cfe8d1;
   padding: 16px;

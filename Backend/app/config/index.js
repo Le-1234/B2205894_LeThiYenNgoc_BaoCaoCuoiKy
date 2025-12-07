@@ -27,9 +27,9 @@ export async function connectDB() {
 }
 
 // Collections (Lazy loading)
-export async function getBorrowsCollection() {
+export async function getloansCollection() {
   const database = await connectDB();
-  return database.collection("borrows");
+  return database.collection("loans");
 }
 
 export async function getProductsCollection() {

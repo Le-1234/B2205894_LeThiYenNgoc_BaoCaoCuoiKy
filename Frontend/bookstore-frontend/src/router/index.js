@@ -4,13 +4,13 @@ import { createRouter, createWebHistory } from "vue-router";
 import Login from "@/views/user/Login.vue";
 import Register from "@/views/user/Register.vue";
 import Home from "@/views/user/Home.vue";
-import BorrowHistoryPage from "@/views/user/BorrowHistoryPage.vue";
+import loanHistoryPage from "@/views/user/LoanHistoryPage.vue";
 import Products from "@/views/user/Products.vue";
 import ProductDetail from "@/views/user/ProductDetail.vue";   // ⬅ THÊM
 
 // ADMIN PAGES
 import Dashboard from "@/views/admin/Dashboard.vue";
-import AdminBorrowPage from "@/views/admin/AdminBorrowPage.vue";
+import AdminloanPage from "@/views/admin/AdminloanPage.vue";
 import ProductsPage from "@/views/admin/ProductsPage.vue";
 
 const routes = [
@@ -31,22 +31,22 @@ const routes = [
   },
 
   //---------------------------
-  // USER HOME
+  // USER HOME (Không yêu cầu đăng nhập)
   //---------------------------
   {
     path: "/",
     name: "Home",
     component: Home,
-    meta: { requiresAuth: true },
+    // Không có meta.requiresAuth ở đây, nghĩa là trang Home có thể truy cập mà không cần đăng nhập
   },
 
   //---------------------------
-  // USER BORROW HISTORY
+  // USER loan HISTORY
   //---------------------------
   {
-    path: "/borrow-history",
-    name: "BorrowHistory",
-    component: BorrowHistoryPage,
+    path: "/loan-history",
+    name: "loanHistory",
+    component: loanHistoryPage,
     meta: { requiresAuth: true },
   },
 
@@ -70,6 +70,7 @@ const routes = [
     props: true,
     meta: { requiresAuth: true },
   },
+  
 
   //---------------------------
   // ADMIN PAGES
@@ -85,9 +86,9 @@ const routes = [
   },
 
   {
-    path: "/admin/borrows",
-    name: "AdminBorrowPage",
-    component: AdminBorrowPage,
+    path: "/admin/loans",
+    name: "AdminloanPage",
+    component: AdminloanPage,
     meta: {
       requiresAuth: true,
       requiresAdmin: true,
@@ -98,7 +99,7 @@ const routes = [
     path: "/admin/products",
     name: "AdminProducts",
     component: ProductsPage,
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
 ];
 
@@ -121,12 +122,12 @@ router.beforeEach((to, from, next) => {
 
   // Route yêu cầu khách nhưng lại đã login
   if (to.meta.requiresGuest && user) {
-    return next("/");
+    return next("/"); // Redirect về Home
   }
 
-  // Yêu cầu admin
-  if (to.meta.requiresAdmin && user?.role !== "admin") {
-    return next("/");
+  // Yêu cầu admin nhưng user không phải là admin
+  if (to.meta.requiresAdmin && (!user || user.role !== "admin")) {
+    return next("/"); // Redirect về Home nếu không phải admin
   }
 
   next();

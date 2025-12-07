@@ -2,10 +2,10 @@
   <div class="page">
     <AppHeader />
 
+    <!-- Banner (Slider) -->
     <HomeBanner />
 
     <section class="content">
-
       <!-- Sách nổi bật -->
       <div class="section-title-wrapper">
         <h2 class="section-title blink-text">SÁCH NỔI BẬT</h2>
@@ -28,7 +28,9 @@
           <div class="book-card" v-for="b in products" :key="b._id" @click="goDetail(b._id)">
             <img class="img" :src="getImage(b.image)" />
             <h3 class="book-title">{{ b.title }}</h3>
-            <button class="btn" @click.stop="openBorrow(b)">Mượn ngay</button>
+            <!-- Nếu chưa đăng nhập thì ẩn nút mượn sách -->
+            <button class="btn" @click.stop="openloan(b)" v-if="isLoggedIn">Mượn ngay</button>
+            <p v-else class="btn disabled">Đăng nhập để mượn sách</p>
           </div>
         </div>
 
@@ -41,7 +43,6 @@
           &#8250;
         </button>
       </div>
-
 
       <!-- Sách mới -->
       <div class="section-title-wrapper new-wrapper">
@@ -66,7 +67,9 @@
           <div class="book-card" v-for="b in newBooks" :key="b._id">
             <img class="img" :src="getImage(b.image)" />
             <h3 class="book-title">{{ b.title }}</h3>
-            <button class="btn" @click="openBorrow(b)">Mượn ngay</button>
+            <!-- Nếu chưa đăng nhập thì ẩn nút mượn sách -->
+            <button class="btn" @click.stop="openloan(b)" v-if="isLoggedIn">Mượn ngay</button>
+            <p v-else class="btn disabled">Đăng nhập để mượn sách</p>
           </div>
         </div>
 
@@ -85,17 +88,14 @@
     <AppFooter />
 
     <!-- POPUP MƯỢN SÁCH -->
-    <div v-if="showBorrowPopup" class="popup-overlay">
+    <div v-if="showloanPopup" class="popup-overlay">
       <div class="popup-box detail-popup">
         <h3 class="popup-title">Mượn sách</h3>
-
         <p class="book-name">{{ selectedBook?.title }}</p>
-
-        <button class="send-btn" @click="sendBorrow">
+        <button class="send-btn" @click="sendloan">
           Gửi yêu cầu
         </button>
-
-        <button class="close-btn" @click="showBorrowPopup = false">
+        <button class="close-btn" @click="showloanPopup = false">
           Đóng
         </button>
       </div>
@@ -109,35 +109,31 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
-import HomeBanner from "@/components/HomeBanner.vue";
+import HomeBanner from "@/components/HomeBanner.vue"; 
 import productService from "@/services/product.service.js";
-import borrowService from "@/services/borrow.service.js";
+import loanService from "@/services/loan.service.js";
+import authService from "@/services/auth.service.js";  // import auth service để kiểm tra đăng nhập
 import "../../assets/main.css";
 
 const router = useRouter();
 const products = ref([]);
 const newBooks = ref([]);
-
-// Slider index
 const hotIndex = ref(0);
 const newIndex = ref(0);
 const itemsPerSlide = 5;
 
-// Hover state
 const hotHover = ref(false);
 const newHover = ref(false);
 
 const hotSlider = ref(null);
 const newSlider = ref(null);
 
-// Popup
-const showBorrowPopup = ref(false);
+const showloanPopup = ref(false);
 const selectedBook = ref(null);
 
 // Slide function
@@ -171,14 +167,14 @@ const prevNew = () => {
 // Load data
 onMounted(async () => {
   const data = await productService.getAll();
-
   // Sách nổi bật
-  const map = new Map();
-  data.forEach(book => {
-    if (!map.has(book.category)) map.set(book.category, book);
-  });
-  products.value = Array.from(map.values());
+  const sortedBooks = [...data].sort((a, b) => b.quantity - a.quantity);
 
+  // Lấy 15 cuốn sách có số lượt mượn nhiều nhất
+  const topBooks = sortedBooks.slice(0, 15);
+
+  // Lưu vào state
+  products.value = topBooks;
   // Sách mới
   newBooks.value = [...data].sort((a, b) => (b._id > a._id ? 1 : -1));
 });
@@ -189,11 +185,12 @@ const getImage = (path) => {
   return `http://localhost:3000${path}`;
 };
 
-const openBorrow = (book) => {
+const openloan = (book) => {
   selectedBook.value = book;
-  showBorrowPopup.value = true;
+  showloanPopup.value = true;
 };
 
+// Notify function
 const notify = ref({
   show: false,
   message: "",
@@ -205,31 +202,32 @@ const showNotify = (msg, type = "success-add") => {
   setTimeout(() => (notify.value.show = false), 1600);
 };
 
-const sendBorrow = async () => {
+const sendloan = async () => {
   try {
-    await borrowService.requestBorrow(selectedBook.value._id);
+    await loanService.requestloan(selectedBook.value._id);
     showNotify("Gửi yêu cầu mượn thành công!", "success-add");
-    showBorrowPopup.value = false;
+    showloanPopup.value = false;
   } catch {
-    showNotify("Yêu cầu mượn không thành công! Hết sách trong kho.", "error");
+    showNotify("Yêu cầu mượn thất bại! Hết sách", "error");
   }
 };
+
+// Kiểm tra người dùng đã đăng nhập chưa
+const isLoggedIn = ref(authService.isLoggedIn());  // Kiểm tra từ dịch vụ auth
 
 const goDetail = (id) => {
   window.scrollTo(0, 0);
   router.push(`/product/${id}`);
 };
-
-
 </script>
 
 <style scoped>
 /* Toàn trang */
 .page {
-  background: #f4f9f5;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-/* SLIDER OUTER */
 /* SLIDER OUTER */
 .slider-wrapper {
   position: relative;
@@ -257,7 +255,6 @@ const goDetail = (id) => {
   min-height: 310px;
 }
 
-
 /* Card đồng bộ kích thước */
 .book-card {
   display: flex;
@@ -275,8 +272,6 @@ const goDetail = (id) => {
   -webkit-box-orient: vertical;
 }
 
-
-/* Nút trái/phải – dạng tròn mờ */
 .nav-btn {
   position: absolute;
   top: 45%;
@@ -311,8 +306,13 @@ const goDetail = (id) => {
   background: rgba(0, 0, 0, 0.55);
 }
 
-
 /* KHUNG TIÊU ĐỀ */
+/* Căn giữa toàn bộ nội dung section */
+.content {
+  width: 96%;
+  margin: 0 auto;
+}
+
 .section-title-wrapper {
   width: 100%;
   background: #2b7852;
@@ -398,7 +398,6 @@ const goDetail = (id) => {
   background: #08632e;
   transform: translateY(-2px);
 }
-
 
 /* Ribbon NEW */
 .new-wrapper {

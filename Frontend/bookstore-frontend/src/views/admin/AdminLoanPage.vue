@@ -16,9 +16,9 @@
       <div v-if="loading" class="loading">Đang tải...</div>
 
       <div
-        v-for="b in borrows"
+        v-for="b in loans"
         :key="b._id"
-        class="borrow-item"
+        class="loan-item"
       >
         <div class="info">
           <p><b>Người dùng:</b> {{ b.username }}</p>
@@ -61,9 +61,9 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import borrowService from "../../services/borrow.service";
+import loanService from "../../services/loan.service";
 
-const borrows = ref([]);
+const loans = ref([]);
 const loading = ref(true);
 
 function format(date) {
@@ -81,22 +81,22 @@ function statusText(s) {
   return s;
 }
 
-/* Tải danh sách borrow */
+/* Tải danh sách loan */
 async function load() {
   loading.value = true;
-  const res = await borrowService.adminGetAll();
-  borrows.value = res.data.data;
+  const res = await loanService.adminGetAll();
+  loans.value = res.data.data;
   loading.value = false;
 }
 
 /* Hành động */
 async function approve(id) {
-  await borrowService.approve(id);
+  await loanService.approve(id);
   load();
 }
 
 async function reject(id) {
-  await borrowService.reject(id);
+  await loanService.reject(id);
   load();
 }
 
@@ -168,8 +168,8 @@ color: white;
   font-weight: 600;
 }
 
-/* Mỗi mục borrow */
-.borrow-item {
+/* Mỗi mục loan */
+.loan-item {
   background: #f8fdf8;
   border: 1px solid #cfe8d1;
   padding: 16px;

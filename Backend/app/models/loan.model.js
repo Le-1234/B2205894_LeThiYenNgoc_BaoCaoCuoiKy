@@ -1,5 +1,5 @@
-// app/models/borrow.model.js
-import { getBorrowsCollection } from "../config/index.js";
+// app/models/loan.model.js
+import { getloansCollection } from "../config/index.js";
 import { ObjectId } from "mongodb";
 
 export function addDays(days) {
@@ -8,14 +8,14 @@ export function addDays(days) {
   return d;
 }
 
-export function isOverdue(borrow) {
-  if (!borrow || !borrow.dueDate) return false;
-  return new Date() > new Date(borrow.dueDate);
+export function isOverdue(loan) {
+  if (!loan || !loan.dueDate) return false;
+  return new Date() > new Date(loan.dueDate);
 }
 
-const BorrowModel = {
+const loanModel = {
   async create(userId, productId) {
-    const Borrows = await getBorrowsCollection();
+    const loans = await getloansCollection();
     const now = new Date();
 
     const data = {
@@ -32,32 +32,32 @@ const BorrowModel = {
       adminNote: null,
     };
 
-    const result = await Borrows.insertOne(data);
+    const result = await loans.insertOne(data);
     // return inserted doc with _id
     return { _id: result.insertedId, ...data };
   },
 
   async findByUser(userId) {
-    const Borrows = await getBorrowsCollection();
-    return Borrows.find({ userId }).sort({ createdAt: -1 }).toArray();
+    const loans = await getloansCollection();
+    return loans.find({ userId }).sort({ createdAt: -1 }).toArray();
   },
 
   async findAll(filter = {}) {
-    const Borrows = await getBorrowsCollection();
-    return Borrows.find(filter).sort({ createdAt: -1 }).toArray();
+    const loans = await getloansCollection();
+    return loans.find(filter).sort({ createdAt: -1 }).toArray();
   },
 
   async findById(id) {
-    const Borrows = await getBorrowsCollection();
+    const loans = await getloansCollection();
     if (!ObjectId.isValid(id)) return null;
-    return Borrows.findOne({ _id: new ObjectId(id) });
+    return loans.findOne({ _id: new ObjectId(id) });
   },
 
   // update: pass partial fields, returns result of updateOne
   async updateStatus(id, update) {
-    const Borrows = await getBorrowsCollection();
+    const loans = await getloansCollection();
     if (!ObjectId.isValid(id)) return null;
-    return Borrows.updateOne(
+    return loans.updateOne(
       { _id: new ObjectId(id) },
       { $set: { ...update, updatedAt: new Date() } }
     );
@@ -70,10 +70,10 @@ const BorrowModel = {
   },
 
   async markOverdueForExpired() {
-    const Borrows = await getBorrowsCollection();
+    const loans = await getloansCollection();
     const now = new Date();
     // statuses to consider for overdue
-    const res = await Borrows.updateMany(
+    const res = await loans.updateMany(
       {
         status: { $in: ["approved", "extended"] },
         dueDate: { $lt: now }
@@ -86,4 +86,4 @@ const BorrowModel = {
   }
 };
 
-export default BorrowModel;
+export default loanModel;

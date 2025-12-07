@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Truyện Tranh",
+    "slug": "truyen-tranh"
+  },
+  {
+    "name": "Văn Học",
+    "slug": "van-hoc"
+  },
+  {
+    "name": "Thiếu Nhi",
+    "slug": "thieu-nhi"
+  },
+  {
+    "name": "Ngoại Ngữ",
+    "slug": "ngoai-ngu"
+  },
+  {
+    "name": "Giáo Khoa - Tham Khảo",
+    "slug": "giao-khoa-tham-khao"
+  },
+  {
+    "name": "Kinh Tế",
+    "slug": "kinh-te"
+  },
+  {
+    "name": "Kỹ Năng Sống - Tâm Lý",
+    "slug": "ky-nang-song-tam-ly"
+  }
+]

@@ -1,69 +1,63 @@
 <template>
-  <div class="dashboard-wrapper">
+  <div class="page-root">
 
-    <!-- HEADER -->
-    <header class="top-header">
-      <h1 class="dashboard-title">📘 Trang Quản Trị</h1>
+    <!-- HEADER GREEN (TITLE + USER-MENU) -->
+    <div class="page-header">
+      <!-- LEFT TITLE -->
+      <div class="title-wrapper">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>Bảng điều khiển</span>
+      </div>
 
+      <!-- RIGHT USER-MENU (ngang hàng với tiêu đề, dropdown đầy đủ) -->
       <div class="auth-box">
-        <router-link v-if="!user" class="login-btn" to="/login">
-          Đăng nhập
-        </router-link>
+        <div class="user-menu" @click="toggleDropdown" ref="userMenuBtn">
+          <img class="avatar" :src="user?.avatar || defaultAvatar" />
+          <span class="username">{{ user?.username || 'Khách' }}</span>
+        </div>
 
-        <div v-else class="user-menu" @click="toggleDropdown">
-          <i class="fa-solid fa-user user-icon"></i>
-          <span class="username">{{ user.username }}</span>
-
-          <div v-if="showDropdown" class="dropdown">
-            <div class="dropdown-item info">
-              <i class="fa-solid fa-user"></i>
-              <span>{{ user.username }}</span>
+        <!-- Dropdown (vẫn nằm trong vùng header green) -->
+        <div v-if="showDropdown" class="dropdown" ref="dropdown">
+          <div class="dropdown-top">
+            <img class="avatar-large" :src="user?.avatar || defaultAvatar" />
+            <div class="user-info">
+              <b>{{ user?.username || 'Khách' }}</b>
+              <p class="email">{{ user?.email || 'no-email@example.com' }}</p>
             </div>
-
-            <div class="dropdown-item info">
-              <i class="fa-solid fa-envelope"></i>
-              <span>{{ user.email }}</span>
-            </div>
-
-            <div class="dropdown-divider"></div>
-
-            <button class="dropdown-item logout" @click="logout">
-              <i class="fa-solid fa-right-from-bracket"></i>
-              <span>Đăng xuất</span>
-            </button>
           </div>
+
+          <div class="dropdown-divider"></div>
+
+          <button class="dropdown-item logout" @click.stop="logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Đăng xuất</span>
+          </button>
         </div>
       </div>
-    </header>
+    </div>
 
-    <!-- FEATURE CARDS -->
-    <div class="features">
-      <div class="feature-card" @click="goTo('/admin/products')">
-        <i class="fa-solid fa-book card-icon"></i>
-        <h3>Quản lý sách</h3>
-      </div>
-
-      <div class="feature-card" @click="goTo('/admin/users')">
-        <i class="fa-solid fa-users card-icon"></i>
-        <h3>Người dùng</h3>
-      </div>
-
-      <div class="feature-card" @click="goTo('/admin/borrows')">
-        <i class="fa-solid fa-file-lines card-icon"></i>
-        <h3>Phiếu mượn</h3>
-      </div>
-
-      <div class="feature-card" @click="goTo('/admin/stats')">
-        <i class="fa-solid fa-chart-line card-icon"></i>
-        <h3>Thống kê</h3>
+    <!-- MAIN WHITE BOX -->
+    <div class="container">
+      <div class="menu-grid">
+        <div
+          class="menu-card"
+          v-for="item in menu"
+          :key="item.name"
+          @click="go(item.to)"
+        >
+          <i :class="['menu-icon', item.icon]"></i>
+          <h3 class="menu-title">{{ item.label }}</h3>
+        </div>
       </div>
     </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
+import defaultAvatar from "@/assets/admin.png";
 
 const router = useRouter();
 
@@ -73,7 +67,26 @@ const showDropdown = ref(false);
 onMounted(() => {
   const stored = localStorage.getItem("user");
   if (stored) user.value = JSON.parse(stored);
+  document.addEventListener("click", handleOutsideClick);
 });
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleOutsideClick);
+});
+
+const toggleDropdown = (e) => {
+  showDropdown.value = !showDropdown.value;
+};
+
+const handleOutsideClick = (e) => {
+  // Nếu click ra ngoài dropdown và nút user, đóng dropdown
+  const btn = document.querySelector(".user-menu");
+  const dd = document.querySelector(".dropdown");
+  if (!btn) return;
+  if (btn.contains(e.target)) return; // click bên trong nút → handled elsewhere
+  if (dd && dd.contains(e.target)) return; // click trong dropdown
+  showDropdown.value = false;
+};
 
 const logout = () => {
   localStorage.removeItem("token");
@@ -81,93 +94,250 @@ const logout = () => {
   router.push("/login");
 };
 
-const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
-
-const goTo = (path) => {
+const go = (path) => {
+  window.scrollTo(0, 0);
   router.push(path);
 };
+
+const menu = [
+  { name: "books", label: "Quản lý sách", icon: "fa-solid fa-book", to: "/admin/products" },
+  { name: "users", label: "Người dùng", icon: "fa-solid fa-users", to: "/admin/users" },
+  { name: "tickets", label: "Phiếu mượn", icon: "fa-solid fa-file-lines", to: "/admin/loans" },
+  { name: "stats", label: "Thống kê", icon: "fa-solid fa-chart-line", to: "/admin/stats" },
+
+];
 </script>
 
 <style scoped>
-.dashboard-wrapper {
+/* ==== NỀN GIỐNG HỆT loan ==== */
+.page-root {
+  background: #F7F7F7;
   min-height: 100vh;
-  background: linear-gradient(160deg, #daf6df, #f4faf5);
-  padding: 40px 60px;
-  font-family: "Montserrat", sans-serif !important;
-}
+  padding: 20px 0;
 
-/* HEADER */
-.top-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 40px;
+  gap: 0;
 }
 
-.dashboard-title {
-  font-size: 32px;
-  color: #0e4a32;
+/* ==== HEADER GIỐNG HỆT loan ==== */
+.page-header {
+  width: 96%;
+  background: #0e4a32;  
+  color: white;
+
+  padding: 20px 28px;
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;   /* ⭐ GIỐNG loan */
+  gap: 16px;
+
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+
+  z-index: 5;
+  isolation: isolate;
+}
+
+/* ==== CONTAINER TRẮNG GIỐNG HỆT loan ==== */
+.container {
+  width: 85%;
+  max-width: 900px;
+  background: #ffffff !important;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+
+  margin: 0 auto;
+  margin-top: 20px;
+
+  isolation: isolate;
+  z-index: 2;
+}
+
+
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 23px;
   font-weight: 700;
 }
 
-/* FEATURE GRID */
-.features {
-  margin-top: 40px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 28px;
+.title-wrapper i {
+  font-size: 26px;
 }
 
-.feature-card {
-  background: white;
-  border-radius: 18px;
-  padding: 32px 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-  text-align: center;
+/* AUTH BOX (nằm ngang hàng với tiêu đề) */
+.auth-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+/* USER-MENU (button) */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
-  transition: 0.25s;
+  padding: 6px 10px;
+  border-radius: 10px;
+  transition: 0.18s ease;
+}
+.user-menu:hover {
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-2px);
 }
 
-.feature-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.18);
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.12);
 }
 
-.card-icon {
-  font-size: 48px;
-  color: #0e4a32;
-  margin-bottom: 12px;
+.username {
+  font-weight: 600;
+  color: #fff;
 }
 
-.feature-card h3 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #0e4a32;
-}
-
-/* DROPDOWN */
+/* DROPDOWN (giữ trong vùng header, hiển thị email) */
 .dropdown {
   position: absolute;
-  right: 40px;
-  top: 70px;
-  background: #d5f5df;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 240px;
+  background: #ffffff;
+  color: #222;
   border-radius: 12px;
-  min-width: 180px;
-  padding: 12px 0;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-  z-index: 99;
+  padding: 8px 0;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.22);
+  z-index: 999;
 }
 
-.dropdown-item {
-  padding: 10px 16px;
+.dropdown-top {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
 }
 
+.avatar-large {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #eee;
+}
+
+.user-info b {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.email {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 8px 0;
+}
+
+/* Dropdown buttons */
+.dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1f2937;
+  transition: background 0.15s, transform 0.12s;
+}
+.dropdown-item i { width: 18px; text-align: center; }
+
+.dropdown-item:hover {
+  background: #f7faf8;
+  transform: translateY(-2px);
+}
 .dropdown-item.logout {
-  color: #c0392b;
+  color: #d9534f;
+}
+
+/* MENU GRID — GIỮ 2 CỘT, NHƯNG NÚT MỖI CỘT NHỎ HƠN */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  width: 100%;
+}
+
+.menu-card {
+  width: 70%;                  
+  margin: auto;
+
+  padding: 55px 18px;
+  border-radius: 18px;
+
+  background: #cccccc;
+  backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255,255,255,0.45);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.15); 
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  cursor: pointer;
+  transition: 0.28s ease;
+}
+
+/* HOVER — GLOW + SHADOW RÕ */
+.menu-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25),
+              0 0 22px rgba(0, 190, 140, 0.5);  /* ⭐ GLOW NỔI BẬT */
+  background: rgba(255,255,255,0.35);
+}
+
+/* ICON — MÀU TEAL NHẠT & XOAY NHẸ */
+.menu-icon {
+  font-size: 34px;
+  color: #0f6b58;
+  opacity: 0.9;
+  transition: 0.25s ease;
+}
+
+.menu-card:hover .menu-icon {
+  transform: rotate(12deg) scale(1.1);
+  text-shadow: 0 0 12px rgba(0, 190, 140, 0.6);
+}
+
+/* TITLE MÀU ĐẬM HƠN */
+.menu-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f5242;
+}
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+  .menu-grid { grid-template-columns: 1fr; }
+  .menu-card { width: 92%; }
 }
 </style>
