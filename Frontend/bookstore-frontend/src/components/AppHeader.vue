@@ -15,7 +15,6 @@
 
     <!-- USER -->
     <div class="auth-box">
-      <!-- Hiển thị nút đăng nhập và đăng ký khi chưa đăng nhập -->
       <router-link v-if="!user" class="login-btn" to="/login">
         Đăng nhập
       </router-link>

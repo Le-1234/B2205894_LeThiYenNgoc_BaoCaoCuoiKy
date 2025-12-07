@@ -1,4 +1,3 @@
-// app/middlewares/auth.middleware.js
 import jwt from "jsonwebtoken";
 
 export default function verifyToken(req, res, next) {
@@ -15,7 +14,7 @@ export default function verifyToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;   // { id, role, iat, exp }
+    req.user = decoded;   
     next();
   } catch (err) {
     return res.status(401).json({

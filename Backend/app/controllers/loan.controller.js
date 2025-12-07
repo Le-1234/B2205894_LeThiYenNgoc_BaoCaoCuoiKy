@@ -1,4 +1,3 @@
-// app/controllers/loan.controller.js
 import loanModel, { addDays } from "../models/loan.model.js";
 import { getUsersCollection, getProductsCollection } from "../config/index.js";
 import { ObjectId } from "mongodb";

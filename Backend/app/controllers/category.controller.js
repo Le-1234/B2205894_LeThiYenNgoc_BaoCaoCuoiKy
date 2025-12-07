@@ -1,8 +1,6 @@
-// controllers/category.controller.js
 import { CategoryModel } from "../models/category.model.js";
 
 export const CategoryController = {
-  // GET /categories
   async getAll(req, res) {
     try {
       const items = await CategoryModel.findAll();
@@ -12,7 +10,6 @@ export const CategoryController = {
     }
   },
 
-  // GET /categories/:id
   async getOne(req, res) {
     try {
       const item = await CategoryModel.findById(req.params.id);
@@ -23,7 +20,6 @@ export const CategoryController = {
     }
   },
 
-  // POST /categories
   async create(req, res) {
     try {
       const result = await CategoryModel.create(req.body);
@@ -33,7 +29,6 @@ export const CategoryController = {
     }
   },
 
-  // PUT /categories/:id
   async update(req, res) {
     try {
       await CategoryModel.update(req.params.id, req.body);
@@ -43,7 +38,6 @@ export const CategoryController = {
     }
   },
 
-  // DELETE /categories/:id
   async remove(req, res) {
     try {
       await CategoryModel.delete(req.params.id);

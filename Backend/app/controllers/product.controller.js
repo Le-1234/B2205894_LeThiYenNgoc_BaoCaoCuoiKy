@@ -4,11 +4,11 @@ import { getProductsCollection } from "../models/product.model.js";
 export const getAllProducts = async (req, res) => {
   try {
     const collection = await getProductsCollection();
-    const products = await collection.find({}).toArray();  // <== QUAN TRỌNG
+    const products = await collection.find({}).toArray();  
 
     return res.json({
       success: true,
-      data: products   // <== đúng format frontend
+      data: products   
     });
 
   } catch (error) {

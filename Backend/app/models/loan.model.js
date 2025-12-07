@@ -19,9 +19,9 @@ const loanModel = {
     const now = new Date();
 
     const data = {
-      userId,               // keep as provided (string or ObjectId-like)
+      userId,               
       productId,
-      status: "pending",    // pending | approved | rejected | canceled | returned | overdue | extended
+      status: "pending",    
       createdAt: now,
       updatedAt: now,
       startDate: null,
@@ -33,7 +33,6 @@ const loanModel = {
     };
 
     const result = await loans.insertOne(data);
-    // return inserted doc with _id
     return { _id: result.insertedId, ...data };
   },
 
@@ -53,7 +52,6 @@ const loanModel = {
     return loans.findOne({ _id: new ObjectId(id) });
   },
 
-  // update: pass partial fields, returns result of updateOne
   async updateStatus(id, update) {
     const loans = await getloansCollection();
     if (!ObjectId.isValid(id)) return null;
@@ -63,7 +61,6 @@ const loanModel = {
     );
   },
 
-  // helper to update and return the updated document
   async findByIdAndUpdate(id, update) {
     await this.updateStatus(id, update);
     return this.findById(id);
@@ -72,7 +69,6 @@ const loanModel = {
   async markOverdueForExpired() {
     const loans = await getloansCollection();
     const now = new Date();
-    // statuses to consider for overdue
     const res = await loans.updateMany(
       {
         status: { $in: ["approved", "extended"] },

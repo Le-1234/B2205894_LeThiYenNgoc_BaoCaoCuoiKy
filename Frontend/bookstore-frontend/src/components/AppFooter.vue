@@ -1,13 +1,11 @@
 <template>
   <footer class="footer">
     <div class="footer-container">
-      <!-- Section 1: Thông tin công ty -->
       <div class="footer-section">
         <h3 class="footer-title">MyBook</h3>
         <p class="footer-text">Hệ thống mượn sách online - Mang đến cho bạn trải nghiệm đọc sách tuyệt vời.</p>
       </div>
 
-      <!-- Section 2: Liên kết nhanh -->
       <div class="footer-section">
         <h3 class="footer-title">Liên kết nhanh</h3>
         <ul class="footer-links">
@@ -18,7 +16,6 @@
         </ul>
       </div>
 
-      <!-- Section 3: Mạng xã hội -->
       <div class="footer-section">
         <h3 class="footer-title">Kết nối với chúng tôi</h3>
         <div class="social-icons">
@@ -34,14 +31,12 @@
         </div>
       </div>
 
-      <!-- Section 4: Địa chỉ -->
       <div class="footer-section">
         <h3 class="footer-title">Địa chỉ</h3>
-        <p class="footer-text">123 Đường ABC, Quận XYZ, Thành phố Hà Nội</p>
+        <p class="footer-text">123 Đường ABC, Quận XYZ, Thành phố Cần Thơ</p>
       </div>
     </div>
 
-    <!-- Footer bottom -->
     <div class="footer-bottom">
       <p>© 2025 MyBook - Hệ thống mượn sách online | Tất cả quyền được bảo lưu</p>
     </div>
@@ -50,7 +45,7 @@
 
 <style scoped>
 .footer {
-  background: #2b7852; /* Màu nền xanh đậm */
+  background: #2b7852; 
   color: #ffffff;
   padding: 40px 20px;
   font-family: Arial, sans-serif;

@@ -1,4 +1,3 @@
-// file: app/models/user.model.js
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 

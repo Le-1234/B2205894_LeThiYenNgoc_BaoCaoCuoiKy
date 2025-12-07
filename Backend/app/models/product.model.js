@@ -1,11 +1,10 @@
 import { MongoClient } from 'mongodb';
 
-const url = 'mongodb://localhost:27017'; // Địa chỉ MongoDB
-const dbName = 'myshop'; // Tên database
+const url = 'mongodb://localhost:27017';
+const dbName = 'myshop'; 
 
 let db = null;
 
-// Kết nối đến MongoDB chỉ một lần duy nhất và lưu trữ kết nối
 const connectToDatabase = async () => {
   if (!db) {
     try {

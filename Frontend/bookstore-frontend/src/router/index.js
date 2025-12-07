@@ -10,7 +10,7 @@ import ProductDetail from "@/views/user/ProductDetail.vue";
 
 // ADMIN PAGES
 import Dashboard from "@/views/admin/Dashboard.vue";
-import AdminloanPage from "@/views/admin/AdminloanPage.vue";
+import AdminloanPage from "@/views/admin/AdminLoanPage.vue";
 import ProductsPage from "@/views/admin/ProductsPage.vue";
 import Users from "@/views/admin/UsersPage.vue";
 

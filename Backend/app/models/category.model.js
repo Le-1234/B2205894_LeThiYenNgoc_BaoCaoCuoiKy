@@ -1,4 +1,3 @@
-// models/category.model.js
 import { ObjectId } from "mongodb";
 import { getCategoriesCollection } from "../config/index.js";
 

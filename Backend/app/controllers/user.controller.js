@@ -1,4 +1,3 @@
-// file: app/controllers/user.controller.js
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { getUsersCollection } from '../models/user.model.js';
@@ -33,7 +32,6 @@ export const registerUser = async (req, res) => {
   try {
     await userCollection.insertOne(newUser);
 
-    // 🔥 QUAN TRỌNG: trả về success để frontend biết
     return res.status(201).json({
       success: true,
       message: 'Đăng ký thành công!'
