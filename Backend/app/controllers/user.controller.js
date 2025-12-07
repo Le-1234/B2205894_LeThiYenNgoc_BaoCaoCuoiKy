@@ -2,6 +2,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { getUsersCollection } from '../models/user.model.js';
+import { ObjectId } from "mongodb";
 
 // -------------------- REGISTER --------------------
 export const registerUser = async (req, res) => {
@@ -87,4 +88,45 @@ export const loginUser = async (req, res) => {
       role: user.role
     }
   });
+};
+
+// ========== GET ALL USERS ==========
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await (await getUsersCollection())
+      .find({}, { projection: { password: 0 } }) // Ẩn password
+      .toArray();
+
+    return res.json({
+      success: true,
+      data: users
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Lỗi lấy danh sách user",
+      error: err
+    });
+  }
+};
+
+// ========== DELETE USER ==========
+export const deleteUser = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    await (await getUsersCollection()).deleteOne({ _id: new ObjectId(id) });
+
+    return res.json({
+      success: true,
+      message: "Xóa user thành công"
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Xóa user thất bại",
+      error: err
+    });
+  }
 };

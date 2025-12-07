@@ -101,17 +101,14 @@ const go = (path) => {
 
 const menu = [
   { name: "books", label: "Quản lý sách", icon: "fa-solid fa-book", to: "/admin/products" },
-  { name: "users", label: "Người dùng", icon: "fa-solid fa-users", to: "/admin/users" },
+  { name: "users", label: "Quản lý người dùng", icon: "fa-solid fa-users", to: "/admin/users" },
   { name: "tickets", label: "Phiếu mượn", icon: "fa-solid fa-file-lines", to: "/admin/loans" },
-  { name: "stats", label: "Thống kê", icon: "fa-solid fa-chart-line", to: "/admin/stats" },
-
 ];
 </script>
 
 <style scoped>
-/* ==== NỀN GIỐNG HỆT loan ==== */
 .page-root {
-  background: #F7F7F7;
+  background: #f4f8fb;
   min-height: 100vh;
   padding: 20px 0;
 
@@ -121,27 +118,21 @@ const menu = [
   gap: 0;
 }
 
-/* ==== HEADER GIỐNG HỆT loan ==== */
+/* ==== HEADER GIỐNG HỆT BORROW ==== */
 .page-header {
   width: 96%;
-  background: #0e4a32;  
   color: white;
-
   padding: 20px 28px;
   border-radius: 14px;
-
   display: flex;
   align-items: center;
-  justify-content: space-between;   /* ⭐ GIỐNG loan */
+  justify-content: space-between;
   gap: 16px;
-
   box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-
   z-index: 5;
   isolation: isolate;
 }
 
-/* ==== CONTAINER TRẮNG GIỐNG HỆT loan ==== */
 .container {
   width: 85%;
   max-width: 900px;
@@ -157,7 +148,6 @@ const menu = [
   z-index: 2;
 }
 
-
 .title-wrapper {
   display: flex;
   align-items: center;
@@ -170,7 +160,6 @@ const menu = [
   font-size: 26px;
 }
 
-/* AUTH BOX (nằm ngang hàng với tiêu đề) */
 .auth-box {
   display: flex;
   align-items: center;
@@ -178,7 +167,6 @@ const menu = [
   position: relative;
 }
 
-/* USER-MENU (button) */
 .user-menu {
   display: flex;
   align-items: center;
@@ -277,7 +265,7 @@ const menu = [
   color: #d9534f;
 }
 
-/* MENU GRID — GIỮ 2 CỘT, NHƯNG NÚT MỖI CỘT NHỎ HƠN */
+/* MENU GRID */
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -286,39 +274,32 @@ const menu = [
 }
 
 .menu-card {
-  width: 70%;                  
+  width: 70%;
   margin: auto;
-
   padding: 55px 18px;
   border-radius: 18px;
-
-  background: #cccccc;
+  background: #28a745;  /* Sử dụng màu xanh lá sáng hơn */
   backdrop-filter: blur(12px);
-
   border: 1px solid rgba(255,255,255,0.45);
   box-shadow: 0 10px 26px rgba(0,0,0,0.15); 
-
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-
   cursor: pointer;
   transition: 0.28s ease;
 }
 
-/* HOVER — GLOW + SHADOW RÕ */
 .menu-card:hover {
   transform: translateY(-8px) scale(1.03);
   box-shadow: 0 12px 30px rgba(0,0,0,0.25),
-              0 0 22px rgba(0, 190, 140, 0.5);  /* ⭐ GLOW NỔI BẬT */
+              0 0 22px rgba(0, 190, 140, 0.5);
   background: rgba(255,255,255,0.35);
 }
 
-/* ICON — MÀU TEAL NHẠT & XOAY NHẸ */
 .menu-icon {
   font-size: 34px;
-  color: #0f6b58;
+  color: #fff;
   opacity: 0.9;
   transition: 0.25s ease;
 }
@@ -328,11 +309,10 @@ const menu = [
   text-shadow: 0 0 12px rgba(0, 190, 140, 0.6);
 }
 
-/* TITLE MÀU ĐẬM HƠN */
 .menu-title {
   font-size: 16px;
   font-weight: 700;
-  color: #0f5242;
+  color: #fff;
 }
 
 /* RESPONSIVE */

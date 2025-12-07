@@ -6,12 +6,13 @@ import Register from "@/views/user/Register.vue";
 import Home from "@/views/user/Home.vue";
 import loanHistoryPage from "@/views/user/LoanHistoryPage.vue";
 import Products from "@/views/user/Products.vue";
-import ProductDetail from "@/views/user/ProductDetail.vue";   // ⬅ THÊM
+import ProductDetail from "@/views/user/ProductDetail.vue";   
 
 // ADMIN PAGES
 import Dashboard from "@/views/admin/Dashboard.vue";
 import AdminloanPage from "@/views/admin/AdminloanPage.vue";
 import ProductsPage from "@/views/admin/ProductsPage.vue";
+import Users from "@/views/admin/UsersPage.vue";
 
 const routes = [
   //---------------------------
@@ -30,19 +31,12 @@ const routes = [
     meta: { requiresGuest: true },
   },
 
-  //---------------------------
-  // USER HOME (Không yêu cầu đăng nhập)
-  //---------------------------
   {
     path: "/",
     name: "Home",
     component: Home,
-    // Không có meta.requiresAuth ở đây, nghĩa là trang Home có thể truy cập mà không cần đăng nhập
   },
 
-  //---------------------------
-  // USER loan HISTORY
-  //---------------------------
   {
     path: "/loan-history",
     name: "loanHistory",
@@ -50,9 +44,6 @@ const routes = [
     meta: { requiresAuth: true },
   },
 
-  //---------------------------
-  // USER PRODUCT LIST
-  //---------------------------
   {
     path: "/products",
     name: "Products",
@@ -60,9 +51,6 @@ const routes = [
     meta: { requiresAuth: true },
   },
 
-  //---------------------------
-  // USER PRODUCT DETAIL (THÊM)
-  //---------------------------
   {
     path: "/product/:id",
     name: "ProductDetail",
@@ -99,6 +87,13 @@ const routes = [
     path: "/admin/products",
     name: "AdminProducts",
     component: ProductsPage,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+
+  {
+    path: "/admin/users",
+    name: "AdminUsers",
+    component: Users,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
 ];

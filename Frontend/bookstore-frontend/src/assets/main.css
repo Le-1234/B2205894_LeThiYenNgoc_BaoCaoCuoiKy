@@ -41,8 +41,8 @@ background: linear-gradient(160deg, #b9e8b9, #f8faf7);
 
 /* ---------- LOGIN CONTAINER ---------- */
 .login-container {
-  width: 950px;
-  height: 560px;
+  width: 780px;
+  height: 500px;
   display: flex;
   border-radius: 34px;
   overflow: hidden;
@@ -55,6 +55,7 @@ background: linear-gradient(160deg, #b9e8b9, #f8faf7);
 /* ------------------------ */
 /*   LEFT SIDE (GREEN)      */
 /* ------------------------ */
+/* ---------- LEFT SIDE ---------- */
 .left-side {
   width: 45%;
   padding: 40px;
@@ -63,35 +64,66 @@ background: linear-gradient(160deg, #b9e8b9, #f8faf7);
   flex-direction: column;
   justify-content: center;
   color: white;
-
-  /* GRADIENT xanh đậm hiện đại */
+  
+  /* GRADIENT MÀU TINH TẾ VÀ NHẸ HƠN */
   background: linear-gradient(
     160deg,
-    #0e4a32,
-    #0d5c38 30%,
-    #0d6f3d 60%,
-    #0d7c41
+    #4c8c3b,
+    #3a6e2c 30%,
+    #2f5c27 60%,
+    #1d4c1f
   );
-
+  
   border-radius: 20px 0 0 20px;
   overflow: hidden;
+  
+  /* Hiệu ứng chuyển động nền nhẹ */
+  animation: backgroundMove 15s infinite ease-in-out;
+}
+
+/* Hiệu ứng chuyển động nền cho .left-side */
+@keyframes backgroundMove {
+  0% {
+    background-position: 100% 100%;
+  }
+  50% {
+    background-position: 50% 50%;
+  }
+  100% {
+    background-position: 100% 100%;
+  }
 }
 
 /* HIỆU ỨNG ÁNH SÁNG LOANG NHẸ */
 .left-side::before {
   content: "";
   position: absolute;
-  top: -80px;
-  left: -100px;
-  width: 280px;
-  height: 280px;
+  top: -60px;
+  left: -120px;
+  width: 350px;
+  height: 350px;
   background: radial-gradient(
     circle,
-    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.2),
     transparent 70%
   );
-  filter: blur(45px);
+  filter: blur(40px);
   pointer-events: none;
+  z-index: 0; /* Đảm bảo hiệu ứng ánh sáng loang ở phía sau */
+  animation: glowEffect 5s infinite ease-in-out;
+}
+
+/* HIỆU ỨNG GLOW ÁNH SÁNG CHẠY CHẬM */
+@keyframes glowEffect {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.3;
+  }
 }
 
 /* HIỆU ỨNG VIỀN GƯƠNG MỜ MỀM */
@@ -101,15 +133,48 @@ background: linear-gradient(160deg, #b9e8b9, #f8faf7);
   inset: 0;
   background: linear-gradient(
     140deg,
-    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.1),
     transparent 60%
   );
   pointer-events: none;
-
-
-  
-  overflow: hidden;
+  z-index: -1;
+  filter: blur(25px); /* Hiệu ứng viền mờ nhẹ */
+  opacity: 0.5;
+  mix-blend-mode: overlay; /* Tạo hiệu ứng ánh sáng thú vị */
 }
+
+/* Hiệu ứng phát sáng trên vùng trái với gradient chuyển động */
+.left-side .brand-title {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #e4f9c1, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: glowingText 2s ease-in-out infinite;
+}
+
+/* Hiệu ứng văn bản sáng */
+@keyframes glowingText {
+  0% {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 0 20px rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(255, 255, 255, 1), 0 0 25px rgba(255, 255, 255, 0.5);
+  }
+  100% {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 0 20px rgba(255, 255, 255, 0.4);
+  }
+}
+
+.left-side .brand-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 12px;
+}
+
+
 
 /* Hiệu ứng sáng bên trong */
 .left-side::before {
@@ -198,7 +263,7 @@ background: linear-gradient(160deg, #b9e8b9, #f8faf7);
 /*       GLASS FORM BOX     */
 /* ------------------------ */
 .form-box {
-  width: 75%; 
+  width: 95%; 
   padding: 28px;
   border-radius: 32px;
 

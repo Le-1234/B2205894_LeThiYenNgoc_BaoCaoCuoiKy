@@ -1,270 +1,139 @@
 <template>
   <div class="page">
+
+    <!-- HEADER -->
     <div class="page-header">
       <button class="back-btn" @click="$router.push('/dashboard')">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
 
       <div class="title-wrapper">
-        <i class="fa-solid fa-book"></i>
-        <span>Quản lý sách</span>
+        <i class="fa-solid fa-users"></i>
+        <span>Quản lý người dùng</span>
       </div>
     </div>
 
-    <div class="top-bar">
-      <!-- NÚT ADD BÊN TRÁI -->
-      <button class="add-btn" @click="openAdd">
-        <i class="fa-solid fa-plus"></i> Thêm sách
-      </button>
+    <!-- VIEW DETAIL -->
+    <div v-if="showView" class="view-backdrop">
+      <div class="view-box">
+        <h2 class="view-title">Thông tin người dùng</h2>
 
-      <!-- SEARCHBOX BÊN PHẢI -->
-      <div class="right-tools">
-        <SearchBox @go-detail="openView" @go-search="searchBook" />
+        <div class="view-content">
+          <p><strong>Username:</strong> {{ viewUser.username }}</p>
+          <p><strong>Email:</strong> {{ viewUser.email }}</p>
+          <p><strong>Role:</strong> {{ viewUser.role }}</p>
+          <p><strong>Ngày tạo:</strong> {{ formatDate(viewUser.createdAt) }}</p>
+        </div>
+
+        <button class="btn-close-view" @click="showView = false">Đóng</button>
       </div>
     </div>
 
-
-    <!-- Danh sách -->
+    <!-- USER TABLE -->
     <div class="table-wrapper">
-      <!-- MODAL XEM CHI TIẾT -->
-<div v-if="showView" class="view-backdrop">
-  <div class="view-box">
-    <h2 class="view-title">Thông Tin Chi Tiết Sản Phẩm</h2>
-
-    <div class="view-content">
-      <p><strong>Tên sách:</strong> {{ viewProduct.title }}</p>
-      <p><strong>Tác giả:</strong> {{ viewProduct.author }}</p>
-      <p><strong>Thể loại:</strong> {{ getCategoryName(viewProduct.categoryId) }}</p>
-      <p><strong>Năm XB:</strong> {{ viewProduct.year }}</p>
-      <p><strong>Nhà XB:</strong> {{ viewProduct.publisher }}</p>
-      <p><strong>Loại bìa:</strong> {{ viewProduct.coverType }}</p>
-
-      <p><strong>Số lượng:</strong> {{ viewProduct.quantity }}</p>
-      <p><strong>Tổng số lượng:</strong> {{ viewProduct.totalQuantity }}</p>
-
-
-      <p><strong>Mô tả:</strong> {{ viewProduct.description }}</p>
-
-      <p><strong>Ngày tạo:</strong> {{ viewProduct.createdAt }}</p>
-
-      <div class="images">
-        <img :src="getImage(viewProduct.image)" alt="Ảnh chính" />
-        <img :src="getImage(viewProduct.detail1)" alt="Chi tiết 1" />
-        <img :src="getImage(viewProduct.detail2)" alt="Chi tiết 2" />
-      </div>
-    </div>
-
-    <button class="btn-close-view" @click="showView = false">Đóng</button>
-  </div>
-</div>
-
       <table class="product-table">
         <thead>
-  <tr>
-    <th class="col-stt">STT</th>
-    <th>Tên sách</th>
-    <th>Hành động</th>
-  </tr>
-</thead>
+          <tr>
+            <th>STT</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
 
-<tbody>
-  <tr v-for="(product, index) in products" :key="product._id">
-    <td>{{ index + 1 }}</td>
-    <td>{{ product.title }}</td>
+        <tbody>
+          <tr v-for="(u, index) in users" :key="u._id">
+            <td>{{ index + 1 }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role }}</td>
 
-    <td class="action-col">
-      <button class="view-btn" @click="openView(product)">
-        <i class="fa-solid fa-eye"></i> Xem
-      </button>
+            <td class="action-col">
+              <button class="view-btn" @click="openView(u)">
+                <i class="fa-solid fa-eye"></i> Xem
+              </button>
 
-      <button class="edit-btn" @click="openEdit(product)">
-        <i class="fa-solid fa-pen-to-square"></i> Sửa
-      </button>
-
-      <button class="delete-btn" @click="openConfirm(product._id)">
-        <i class="fa-solid fa-trash"></i> Xóa
-      </button>
-    </td>
-  </tr>
-</tbody>
-
+              <button class="delete-btn" @click="openConfirm(u._id)">
+                <i class="fa-solid fa-trash"></i> Xóa
+              </button>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
 
-    <!-- Modal -->
-    <div class="modal" v-if="showModal">
-
-    <ProductForm
-      :modelValue="selectedProduct"
-      @save="saveProduct"
-          @close="closeModal"
-        />
-    </div>
-    <!-- BACKDROP -->
+    <!-- CONFIRM DELETE -->
     <div v-if="showConfirm" class="confirm-backdrop">
-  
-    <!-- MODAL -->
-    <div class="confirm-box">
-      <h3 class="confirm-title">Xác nhận</h3>
-      <p class="confirm-message">Bạn có chắc muốn xóa sách này?</p>
+      <div class="confirm-box">
+        <h3 class="confirm-title">Xác nhận</h3>
+        <p class="confirm-message">Bạn có chắc muốn xóa người dùng này?</p>
 
-      <div class="confirm-actions">
-        <button class="btn-cancel" @click="showConfirm = false">Hủy</button>
-        <button class="btn-ok" @click="confirmDelete">Xóa</button>
+        <div class="confirm-actions">
+          <button class="btn-cancel" @click="showConfirm = false">Hủy</button>
+          <button class="btn-ok" @click="confirmDelete">Xóa</button>
+        </div>
       </div>
     </div>
-  </div>
-    <div 
+
+    <!-- NOTIFY -->
+    <div
       v-if="notify.show"
       :class="['notify-box', notify.type]"
     >
       {{ notify.message }}
     </div>
- </div>
+
+  </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted } from "vue";
-import ProductForm from "../../components/ProductForm.vue";
-import productService from "../../services/product.service";
 import SearchBox from "@/components/SearchBox.vue";
-const products = ref([]);
-const showModal = ref(false);
-const selectedProduct = ref(null);
-const categories = ref([]);
+import userService from "@/services/user.service";
 
+/* ========== STATE ========== */
+const users = ref([]);
+const allUsers = ref([]);
+const showConfirm = ref(false);
+const showView = ref(false);
 
-// Load danh sách
-const loadProducts = async () => {
-  try {
-    const res = await productService.getAll();
+const deleteId = ref(null);
+const viewUser = ref({});
 
-    console.log("RAW RESPONSE:", res);
-
-    // Nếu backend trả về { data: [...] }
-    if (res?.data && Array.isArray(res.data)) {
-      products.value = res.data;
-    } 
-    else if (Array.isArray(res)) {
-      products.value = res; // fallback
-    } 
-    else {
-      products.value = [];
-    }
-
-  } catch (e) {
-    console.error("Lỗi loadProducts:", e);
-  }
-};
-
-const loadCategories = async () => {
-  try {
-    const res = await fetch("http://localhost:3000/api/categories");
-    categories.value = await res.json();
-  } catch (err) {
-    console.error("Load categories failed:", err);
-  }
-};
-
-
-onMounted(() => {
-  loadCategories();
-  loadProducts();
+const notify = ref({
+  show: false,
+  message: "",
+  type: "success-add"
 });
 
-const getCategoryName = (id) => {
-  const c = categories.value.find((x) => x._id === id);
-  return c ? c.name : "Không rõ";
-};
-
-// mở modal thêm
-const openAdd = () => {
-  selectedProduct.value = {
-    title: "",
-    author: "",
-    year: "",
-    description: "",
-    image: ""
-  };
-  showModal.value = true;
-};
-
-// mở modal sửa
-const openEdit = (product) => {
-  selectedProduct.value = {
-    _id: product._id,
-    title: product.title || "",
-    categoryId: product.categoryId || "",
-    author: product.author || "",
-    year: product.year || "",
-    description: product.description || "",
-    publisher: product.publisher || "",
-    coverType: product.coverType || "",
-    image: product.image || "",
-    detail1: product.detail1 || "",
-    detail2: product.detail2 || "",
-    quantity: product.quantity || 1,
-    totalQuantity: product.totalQuantity || 1,
-  };
-
-  showModal.value = true;
-};
-
-const closeModal = () => {
-  showModal.value = false;
-};
-
-const showNotify = (msg, type = "success-add") => {
-
-  // Chuẩn hóa type
-  const finalType = {
-    "success": "success-update",   
-    "add": "success-add",          
-    "update": "success-update",
-    "error": "error"
-  }[type] || type;
-
-  notify.value = {
-    show: true,
-    message: msg,
-    type: finalType
-  };
-
-  setTimeout(() => (notify.value.show = false), 1500);
-};
-
-const saveProduct = async (data) => {
+/* ========== LOAD USERS ========== */
+const loadUsers = async () => {
   try {
-    if (selectedProduct.value?._id) {
-      await productService.update(selectedProduct.value._id, data);
-
-      closeModal();
-      loadProducts();
-      showNotify("Cập nhật sách thành công!", "update");
-    } else {
-      await productService.create(data);
-
-      closeModal();
-      setTimeout(() => {
-      showNotify("Thêm sách mới thành công!", "add");
-      }, 250);
-
-      loadProducts();
-    }
+    const res = await userService.adminGetAll();
+    users.value = res.data.data;
+    allUsers.value = res.data.data; 
   } catch (err) {
-    console.error("LỖI CREATE/UPDATE:", err);
-    closeModal();
-
-    setTimeout(() => {
-      showNotify("Lỗi thêm sách! Vui lòng thử lại.", "error");
-    }, 200);
+    console.error("Load user error:", err);
   }
 };
 
+onMounted(loadUsers);
 
-const showConfirm = ref(false);
-const deleteId = ref(null);
+/* ========== VIEW USER ========== */
+const openView = (u) => {
+  if (!u) return;
+  viewUser.value = { ...u };
+  showView.value = true;
+};
 
+const formatDate = (d) => {
+  if (!d) return "";
+  return new Date(d).toLocaleString();
+};
+
+/* ========== DELETE USER ========== */
 const openConfirm = (id) => {
   deleteId.value = id;
   showConfirm.value = true;
@@ -272,41 +141,21 @@ const openConfirm = (id) => {
 
 const confirmDelete = async () => {
   try {
-    if (!deleteId.value) {
-      showNotify("Không tìm thấy ID để xóa!", "error");
-      return;
-    }
-
-    await productService.delete(deleteId.value);
-
+    await userService.adminDelete(deleteId.value); 
     showConfirm.value = false;
-    loadProducts();
-
-    showNotify("Xóa sách thành công!", "success");
-  } catch (error) {
-    showNotify("Lỗi xóa sách!", "error");
+    await loadUsers();
+    showNotify("Xóa người dùng thành công!", "success-update");
+  } catch (err) {
+    console.error(err);
+    showNotify("Lỗi khi xóa!", "error");
   }
 };
 
-const notify = ref({
-  show: false,
-  message: "",
-  type: "success-add",
-});
-
-const showView = ref(false);
-const viewProduct = ref({});
-
-const openView = (product) => {
-  viewProduct.value = { ...product };
-  showView.value = true;
+/* ========== NOTIFY ========== */
+const showNotify = (msg, type = "success-add") => {
+  notify.value = { show: true, message: msg, type };
+  setTimeout(() => (notify.value.show = false), 1500);
 };
-
-const getImage = (path) => {
-  if (!path) return "";
-  return "http://localhost:3000" + path;
-};
-
 </script>
 
 <style scoped>
@@ -753,23 +602,6 @@ const getImage = (path) => {
 
 .back-btn:hover {
   background: rgba(255,255,255,0.25);
-}
-
-.top-bar {
-  width: 100%;
-  display: flex;
-  justify-content: space-between; /* Trái – Phải rõ ràng */
-  align-items: center;
-  margin-bottom: 18px;
-}
-
-.right-tools {
-  display: flex;
-  align-items: center;
-}
-
-.search-wrapper {
-  width: 320px; /* chỉnh tùy ý */
 }
 
 </style>

@@ -142,6 +142,11 @@ const loadCategories = async () => {
 
 onMounted(() => loadCategories());
 
+ // Load ảnh nếu có
+ const getImage = (path) => {
+   if (!path) return "";
+   return `http://localhost:3000${path}`;
+ };
 // Edit mode
 watch(
   () => props.modelValue,
@@ -162,12 +167,10 @@ watch(
         totalQuantity: val.totalQuantity || 1,
       };
 
-
-      // Load ảnh nếu có
       preview.value = {
-        image: val.image || null,
-        detail1: val.detail1 || null,
-        detail2: val.detail2 || null,
+        image: val.image ? getImage(val.image) : null,
+        detail1: val.detail1 ? getImage(val.detail1) : null,
+        detail2: val.detail2 ? getImage(val.detail2) : null,
       };
     }
     else {

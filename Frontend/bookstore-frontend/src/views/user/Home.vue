@@ -125,7 +125,7 @@ const products = ref([]);
 const newBooks = ref([]);
 const hotIndex = ref(0);
 const newIndex = ref(0);
-const itemsPerSlide = 5;
+const itemsPerSlide = 4;
 
 const hotHover = ref(false);
 const newHover = ref(false);

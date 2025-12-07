@@ -15,7 +15,7 @@
 
     <!-- Gợi ý -->
     <ul v-if="show && results.length" class="suggest-list">
-      <li v-for="p in results" :key="p._id" @click="emitDetail(p._id)">
+      <li v-for="p in results" :key="p._id" @click="emitDetail(p)">
         <img :src="getImage(p.image)" alt="Book Image" />
         <span>{{ p.title }}</span>
       </li>
@@ -49,9 +49,9 @@ const filter = () => {
 };
 
 // Xử lý khi người dùng nhấp vào một cuốn sách trong gợi ý
-const emitDetail = (id) => {
+const emitDetail = (product) => {
   show.value = false;
-  emits("go-detail", id); // Gửi id về trang cha
+  emits("go-detail", product);
 };
 
 // Gửi từ khóa tìm kiếm về trang cha
